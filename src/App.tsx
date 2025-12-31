@@ -16,11 +16,15 @@ import MusicPlayer from './components/MusicPlayer';
 import Admin from './components/Admin';
 import Feedback from './components/Feedback';
 import Login from './components/Login';
-import { logEvent } from './firebase';
+import { logEvent } from './firebase/firebase';
+import { useChatbot } from './features/Chatbot/useChatbot';
+import Chatbot from './features/Chatbot/Chatbot';
+import ChatbotIcon from './features/Chatbot/ChatbotIcon';
+import './features/Chatbot/Chatbot.css';
 
 const AnalyticsTracker: React.FC = () => {
   const location = useLocation();
-  
+
   useEffect(() => {
     logEvent('page_view', {
       page_path: location.pathname + location.search + location.hash,
@@ -32,6 +36,8 @@ const AnalyticsTracker: React.FC = () => {
 };
 
 export const App: React.FC = () => {
+  const { isOpen, toggleChatbot } = useChatbot();
+
   return (
     <LanguageProvider>
       <NotificationProvider>
@@ -53,6 +59,8 @@ export const App: React.FC = () => {
               <Route path="login" element={<Login />} />
             </Route>
           </Routes>
+          <ChatbotIcon onClick={toggleChatbot} />
+          <Chatbot isOpen={isOpen} onClose={toggleChatbot} />
         </HashRouter>
       </NotificationProvider>
     </LanguageProvider>

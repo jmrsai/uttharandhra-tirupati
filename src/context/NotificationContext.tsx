@@ -10,9 +10,10 @@ interface NotificationContextType {
   markAsRead: (id: string) => void;
   markAllAsRead: () => void;
   sendNotification: (title: string, message: string, category: PushNotification['category']) => void;
+  showNotification: (message: string, type?: 'success' | 'error' | 'info') => void; // Add this line
 }
 
-const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
+export const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
 export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [notifications, setNotifications] = useState<PushNotification[]>([]);
@@ -86,6 +87,12 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
     // Trigger storage event for other tabs
     window.dispatchEvent(new Event('storage_update'));
   };
+  
+  const showNotification = (message: string, type: 'success' | 'error' | 'info' = 'info') => {
+    // You can implement a more sophisticated notification system here (e.g., using a library like react-toastify)
+    alert(`${type.toUpperCase()}: ${message}`);
+  };
+
 
   return (
     <NotificationContext.Provider value={{
@@ -95,7 +102,8 @@ export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ childr
       requestPermission,
       markAsRead,
       markAllAsRead,
-      sendNotification
+      sendNotification,
+      showNotification
     }}>
       {children}
     </NotificationContext.Provider>

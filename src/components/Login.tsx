@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { User, Mail, Lock, LogIn, Sparkles, ArrowRight } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
@@ -7,6 +8,21 @@ const Login: React.FC = () => {
   const { t, language } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  const auth = getAuth();
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      // On successful login, you can redirect the user or update the UI
+      console.log('User logged in successfully!');
+    } catch (error: any) {
+      setError(error.message);
+    }
+  };
 
   const LotusIcon = () => (
     <svg viewBox="0 0 100 100" className="w-24 h-24 fill-saffron-500 animate-pulse opacity-40">
@@ -40,7 +56,7 @@ const Login: React.FC = () => {
           </p>
         </div>
 
-        <form className="space-y-5">
+        <form onSubmit={handleLogin} className="space-y-5">
           <div>
             <label className="block text-xs font-bold text-stone-500 uppercase mb-1 ml-1">{t('feedback.email')}</label>
             <div className="relative">
@@ -69,6 +85,8 @@ const Login: React.FC = () => {
             </div>
           </div>
 
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+
           <div className="flex items-center justify-between text-xs font-bold text-saffron-600">
              <label className="flex items-center gap-2 cursor-pointer">
                <input type="checkbox" className="rounded border-stone-300 text-saffron-600 focus:ring-saffron-500" />
@@ -77,7 +95,7 @@ const Login: React.FC = () => {
              <button type="button" className="hover:underline">Forgot Password?</button>
           </div>
 
-          <button className="w-full bg-gradient-to-r from-saffron-600 to-saffron-700 text-white font-bold py-4 rounded-xl hover:shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-all flex items-center justify-center gap-2 group overflow-hidden relative">
+          <button type="submit" className="w-full bg-gradient-to-r from-saffron-600 to-saffron-700 text-white font-bold py-4 rounded-xl hover:shadow-[0_0_20px_rgba(234,88,12,0.4)] transition-all flex items-center justify-center gap-2 group overflow-hidden relative">
             <span className="relative z-10 flex items-center gap-2">
                <LogIn className="w-5 h-5" /> 
                {language === 'en' ? 'Sign In' : 'లాగిన్'}

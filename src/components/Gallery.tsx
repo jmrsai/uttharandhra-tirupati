@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { X, Download, ZoomIn } from 'lucide-react';
-import { GALLERY_IMAGES } from '../constants';
+import { GALLERY_IMAGES } from '../constants/constants';
 import { useLanguage } from '../context/LanguageContext';
 
 const Gallery: React.FC = () => {

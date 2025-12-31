@@ -6,7 +6,7 @@ import {
   ArrowDown, BellRing 
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { DARSHAN_TIMINGS, NEWS_ITEMS } from '../constants';
+import { DARSHAN_TIMINGS, NEWS_ITEMS } from '../constants/constants';
 import { calculatePanchangam } from '../utils/panchangam';
 import { useLanguage } from '../context/LanguageContext';
 import { useNotifications } from '../context/NotificationContext';

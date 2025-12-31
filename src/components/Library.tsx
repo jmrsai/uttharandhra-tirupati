@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Download, BookOpen } from 'lucide-react';
-import { BOOKS } from '../constants';
+import { BOOKS } from '../constants/constants';
 import { useLanguage } from '../context/LanguageContext';
 
 const Library: React.FC = () => {

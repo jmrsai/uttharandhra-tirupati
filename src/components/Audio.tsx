@@ -1,13 +1,14 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Play, Pause, Music, Mic, SkipBack, SkipForward, Volume2 } from 'lucide-react';
-import { AUDIO_TRACKS } from '../constants';
 import { useLanguage } from '../context/LanguageContext';
-import { AudioItem } from '../types';
+import { AudioItem } from '../types/types';
+import { rtdb } from '../firebase/firebase';
+import { ref, onValue } from 'firebase/database';
 
 const Audio: React.FC = () => {
   const { language, t } = useLanguage();
-  const tracks = AUDIO_TRACKS(language);
+  const [tracks, setTracks] = useState<AudioItem[]>([]);
   
   const [currentTrack, setCurrentTrack] = useState<AudioItem | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -15,6 +16,20 @@ const Audio: React.FC = () => {
   const [duration, setDuration] = useState(0);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    const tracksRef = ref(rtdb, `audio_tracks/${language}`);
+    const unsubscribe = onValue(tracksRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setTracks(data);
+      } else {
+        setTracks([]);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [language]);
 
   // Initialize audio element
   useEffect(() => {

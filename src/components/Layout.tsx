@@ -6,7 +6,7 @@ import {
   Languages, Settings, MessageSquare, UserCircle, Sparkles,
   ChevronRight, Trash2, CheckCheck
 } from 'lucide-react';
-import { NAV_ITEMS, SCROLL_NEWS } from '../constants';
+import { NAV_ITEMS, SCROLL_NEWS } from '../constants/constants';
 import { useLanguage } from '../context/LanguageContext';
 import { useNotifications } from '../context/NotificationContext';
 import Logo from './Logo';

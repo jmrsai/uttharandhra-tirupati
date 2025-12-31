@@ -14,7 +14,7 @@ export interface DarshanTiming {
 }
 
 export interface NewsItem {
-  id: number;
+  id: string;
   title: string;
   date: string;
   description: string;
@@ -66,6 +66,7 @@ export interface FeedbackItem {
   type: 'Suggestion' | 'Issue';
   message: string;
   date: string;
+  timestamp?: any;
 }
 
 export interface PushNotification {

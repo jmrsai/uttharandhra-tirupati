@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Youtube, PlayCircle, Loader2, Radio } from 'lucide-react';
-import { VIDEOS, YOUTUBE_CONFIG } from '../constants';
+import { VIDEOS, YOUTUBE_CONFIG } from '../constants/constants';
 import { VideoItem } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 

@@ -15,6 +15,16 @@ export const ENGLISH_NAKSHATRAS = ["Ashwini", "Bharani", "Krithika", "Rohini", "
 export const TELUGU_WEEKDAYS = ["ఆదివారం", "సోమవారం", "మంగళవారం", "బుధవారం", "గురువారం", "శుక్రవారం", "శనివారం"];
 export const ENGLISH_WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
+const RAHU_KALAM_TIMES = [
+    "04:30 PM - 06:00 PM", // Sunday
+    "07:30 AM - 09:00 AM", // Monday
+    "03:00 PM - 04:30 PM", // Tuesday
+    "12:00 PM - 01:30 PM", // Wednesday
+    "01:30 PM - 03:00 PM", // Thursday
+    "10:30 AM - 12:00 PM", // Friday
+    "09:00 AM - 10:30 AM"  // Saturday
+];
+
 export function calculatePanchangam(date: Date, lang: 'en' | 'te' = 'te') {
   const start = new Date(Date.UTC(2000, 0, 1, 12, 0, 0));
   const D = (date.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
@@ -37,11 +47,12 @@ export function calculatePanchangam(date: Date, lang: 'en' | 'te' = 'te') {
 
   const day = date.getDay();
   const weekday = lang === 'te' ? TELUGU_WEEKDAYS[day] : ENGLISH_WEEKDAYS[day];
+  const rahuKalam = RAHU_KALAM_TIMES[day];
 
   return {
     tithi: tithiName,
     nakshatra: nakshatraName,
-    rahuKalam: lang === 'te' ? '10:30 AM - 12:00 PM' : '10:30 AM - 12:00 PM', // Simplified for demo
+    rahuKalam: rahuKalam,
     weekday: weekday,
     date: date.toLocaleDateString(lang === 'te' ? 'te-IN' : 'en-IN', { day: 'numeric', month: 'long', year: 'numeric' })
   };

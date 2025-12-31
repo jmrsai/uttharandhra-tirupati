@@ -1,13 +1,11 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Music, Play, Pause } from 'lucide-react';
-import { useLanguage } from '../context/LanguageContext';
+import { Music, Pause } from 'lucide-react';
 
 const MusicPlayer: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [hasInteracted, setHasInteracted] = useState(false);
-  const { t } = useLanguage();
 
   useEffect(() => {
     // Updated background mantra to Govinda Namalu
@@ -29,7 +27,7 @@ const MusicPlayer: React.FC = () => {
     <div className="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-3">
       {!hasInteracted && !isPlaying && (
         <div className="bg-white px-3 py-1 rounded-lg shadow-lg border border-gold-500 text-xs text-saffron-800 font-bold animate-bounce">
-          {t('music.tooltip')}
+          Play background music
         </div>
       )}
       <button

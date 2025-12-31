@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Flower, Clock, CalendarCheck } from 'lucide-react';
-import { SEVAS } from '../constants';
+import { SEVAS } from '../constants/constants';
 import { useLanguage } from '../context/LanguageContext';
 
 const Sevas: React.FC = () => {
@@ -18,6 +18,11 @@ const Sevas: React.FC = () => {
     window.addEventListener('storage_update', loadData);
     return () => window.removeEventListener('storage_update', loadData);
   }, [language]);
+
+  const handleBookNow = (sevaName: string) => {
+    console.log(`Booking seva: ${sevaName}`);
+    // In a real application, you might navigate to a booking page or open a modal here.
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-10">
@@ -47,6 +52,12 @@ const Sevas: React.FC = () => {
                 <span className="font-semibold">{seva.availability}</span>
               </div>
               <p className="text-stone-600 text-sm leading-relaxed">{seva.description}</p>
+              <button
+                onClick={() => handleBookNow(seva.name)}
+                className="mt-4 px-6 py-2 bg-saffron-600 text-white font-semibold rounded-lg hover:bg-saffron-700 focus:outline-none focus:ring-2 focus:ring-saffron-500 focus:ring-opacity-50 transition-colors"
+              >
+                Book Now
+              </button>
             </div>
           </div>
         ))}

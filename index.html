@@ -6,149 +6,7 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Uttharandhra Tirupati - Pendurthi</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Ramabhadra&family=Tiro+Telugu:ital@0;1&display=swap" rel="stylesheet">
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              saffron: {
-                50: '#fff7ed',
-                100: '#ffedd5',
-                200: '#fed7aa',
-                300: '#fdba74',
-                400: '#fb923c',
-                500: '#f97316',
-                600: '#ea580c', // Primary Saffron
-                700: '#c2410c',
-                800: '#9a3412',
-                900: '#7c2d12',
-              },
-              gold: {
-                50: '#fff9e6',
-                100: '#ffefcc',
-                200: '#ffdf99',
-                300: '#ffcf66',
-                400: '#ffbf33',
-                500: '#eab308',
-                600: '#ca8a04',
-                700: '#a16e03',
-              }
-            },
-            fontFamily: {
-              telugu: ['"Tiro Telugu"', 'serif'],
-              header: ['"Ramabhadra"', 'sans-serif'],
-            },
-            animation: {
-              'spin-slow': 'spin 12s linear infinite',
-              'float': 'float 4s ease-in-out infinite',
-              'pulse-glow': 'pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-              'shimmer': 'shimmer 2.5s linear infinite',
-              'ray': 'ray 10s ease-in-out infinite',
-            }
-          }
-        }
-      }
-    </script>
-    <style>
-      body {
-        font-family: 'sans-serif';
-        background-color: #fffbf0; 
-        overflow-x: hidden;
-      }
-      .font-telugu {
-        font-family: 'Tiro Telugu', serif;
-      }
-      h1, h2, h3, h4 {
-        font-family: 'Ramabhadra', sans-serif;
-      }
-
-      /* God Rays Effect */
-      .god-rays {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: radial-gradient(circle at 50% -20%, rgba(255, 239, 153, 0.15) 0%, transparent 70%);
-        pointer-events: none;
-        overflow: hidden;
-      }
-      .ray {
-        position: absolute;
-        top: -100px;
-        left: 50%;
-        width: 200px;
-        height: 1000px;
-        background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), transparent);
-        transform-origin: top center;
-        opacity: 0.3;
-        filter: blur(20px);
-      }
-      .ray-1 { transform: rotate(15deg); animation: ray 8s infinite alternate; }
-      .ray-2 { transform: rotate(-10deg); animation: ray 12s infinite alternate-reverse; }
-      .ray-3 { transform: rotate(5deg); animation: ray 10s infinite alternate; }
-
-      @keyframes ray {
-        0% { opacity: 0.1; transform: rotate(var(--rot)) scaleX(1); }
-        100% { opacity: 0.4; transform: rotate(calc(var(--rot) + 5deg)) scaleX(1.2); }
-      }
-
-      /* Shimmer Effect */
-      @keyframes shimmer {
-        0% { background-position: -200% 0; }
-        100% { background-position: 200% 0; }
-      }
-      .shimmer-bg {
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-        background-size: 200% 100%;
-      }
-
-      /* Divine Floating */
-      @keyframes float {
-        0%, 100% { transform: translateY(0) rotate(0); }
-        50% { transform: translateY(-15px) rotate(1deg); }
-      }
-
-      /* Flower Rain Animation */
-      .flower-petal {
-        position: absolute;
-        top: -20px;
-        background-color: #ffd700;
-        width: 12px;
-        height: 12px;
-        border-radius: 80% 0 80% 0;
-        animation: fall linear forwards;
-        z-index: 50;
-        pointer-events: none;
-        box-shadow: 0 0 5px rgba(234, 179, 8, 0.3);
-      }
-      .flower-petal:nth-child(odd) { background-color: #ff9933; }
-      .flower-petal:nth-child(3n) { background-color: #fff; }
-
-      @keyframes fall {
-        to { transform: translateY(100vh) rotate(1080deg); }
-      }
-
-      /* Scroll Progress Bar */
-      #scroll-progress {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 4px;
-        background: linear-gradient(to right, #ea580c, #eab308, #ea580c);
-        z-index: 9999;
-        width: 0%;
-        transition: width 0.1s ease-out;
-      }
-
-      /* Custom scrollbar */
-      ::-webkit-scrollbar { width: 8px; }
-      ::-webkit-scrollbar-track { background: #fff7ed; }
-      ::-webkit-scrollbar-thumb { background: #fb923c; border-radius: 4px; }
-      ::-webkit-scrollbar-thumb:hover { background: #ea580c; }
-    </style>
   <script type="importmap">
 {
   "imports": {
@@ -166,12 +24,12 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
+<link rel="stylesheet" href="/src/index.css">
 </head>
   <body>
     <div id="scroll-progress"></div>
     <div id="root"></div>
-    <script type="module" src="./index.tsx"></script>
+    <script type="module" src="./src/index.tsx"></script>
     <script>
       window.addEventListener('scroll', () => {
         const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
@@ -180,6 +38,6 @@
         document.getElementById('scroll-progress').style.width = scrolled + '%';
       });
     </script>
-  <script type="module" src="/index.tsx"></script>
+  <script type="module" src="/src/index.tsx"></script>
 </body>
 </html>
