@@ -4,7 +4,6 @@ import { getFirestore } from "firebase/firestore";
 import { getDatabase } from "firebase/database";
 import { getAnalytics, logEvent as fbLogEvent, isSupported } from "firebase/analytics";
 
-
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: "global-trotter-6p38a.firebaseapp.com",
@@ -21,12 +20,10 @@ let rtdb: any = null;
 let analytics: any = null;
 
 try {
-  // Initialize Firebase modularly
   app = initializeApp(firebaseConfig);
   db = getFirestore(app);
   rtdb = getDatabase(app);
   
-  // Initialize Analytics if supported and in browser environment
   if (typeof window !== "undefined") {
     isSupported().then(yes => {
       if (yes) {

@@ -22,13 +22,13 @@ const Gallery: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-10">
-      <h1 className="text-3xl font-bold text-saffron-700 font-header mb-8 text-center">{t('gallery.title')}</h1>
+      <h1 className="text-3xl font-bold text-primary font-header mb-8 text-center">{t('gallery.title')}</h1>
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {dynamicGallery.map((img) => (
           <div 
             key={img.id} 
-            className="relative group aspect-square bg-stone-200 rounded-xl overflow-hidden cursor-pointer shadow-sm hover:shadow-xl transition-all"
+            className="relative group aspect-square bg-neutral/20 rounded-xl overflow-hidden cursor-pointer shadow-sm hover:shadow-xl transition-all"
             onClick={() => setSelectedImage(img.src)}
           >
             <img 
@@ -39,7 +39,7 @@ const Gallery: React.FC = () => {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex flex-col justify-end p-4">
               <p className="text-white font-medium text-sm">{img.alt}</p>
-              <span className="text-xs text-stone-300">{img.category}</span>
+              <span className="text-xs text-neutral-content">{img.category}</span>
             </div>
             <div className="absolute top-2 right-2 bg-black/50 p-1.5 rounded-full text-white opacity-0 group-hover:opacity-100 transition-opacity">
               <ZoomIn className="w-4 h-4" />
@@ -52,7 +52,7 @@ const Gallery: React.FC = () => {
         <div className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4">
           <button 
             onClick={() => setSelectedImage(null)}
-            className="absolute top-4 right-4 text-white hover:text-saffron-500 transition-colors p-2"
+            className="absolute top-4 right-4 text-white hover:text-accent transition-colors p-2"
           >
             <X className="w-8 h-8" />
           </button>
@@ -69,7 +69,7 @@ const Gallery: React.FC = () => {
                 download
                 target="_blank"
                 rel="noreferrer"
-                className="flex items-center gap-2 bg-saffron-600 text-white px-6 py-2 rounded-full hover:bg-saffron-700 transition-colors"
+                className="flex items-center gap-2 bg-primary text-white px-6 py-2 rounded-full hover:bg-secondary transition-colors"
               >
                 <Download className="w-4 h-4" /> {t('gallery.download_wallpaper')}
               </a>

@@ -16,11 +16,13 @@ import MusicPlayer from './components/MusicPlayer';
 import Admin from './components/Admin';
 import Feedback from './components/Feedback';
 import Login from './components/Login';
+import Live from './components/Live'; // Import the Live component
 import { logEvent } from './firebase/firebase';
 import { useChatbot } from './features/Chatbot/useChatbot';
 import Chatbot from './features/Chatbot/Chatbot';
 import ChatbotIcon from './features/Chatbot/ChatbotIcon';
 import './features/Chatbot/Chatbot.css';
+import './i18n'; // Import the i18n configuration
 
 const AnalyticsTracker: React.FC = () => {
   const location = useLocation();
@@ -54,6 +56,7 @@ export const App: React.FC = () => {
               <Route path="audio" element={<Audio />} />
               <Route path="library" element={<Library />} />
               <Route path="gallery" element={<Gallery />} />
+              <Route path="live" element={<Live />} /> {/* Add the Live route */}
               <Route path="admin" element={<Admin />} />
               <Route path="feedback" element={<Feedback />} />
               <Route path="login" element={<Login />} />

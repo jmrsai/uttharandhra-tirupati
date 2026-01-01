@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Home, Video, Music, BookOpen, Image as ImageIcon, Flower, Gift, ScrollText } from 'lucide-react';
+import { Home, Video, Music, BookOpen, Image as ImageIcon, Flower, Gift, ScrollText, Wifi } from 'lucide-react';
 import { DarshanTiming, NewsItem, VideoItem, AudioItem, BookItem, GalleryItem, NavItem, SevaItem } from '../types';
 
 export const YOUTUBE_CONFIG = {
@@ -14,6 +14,7 @@ export const getNavItems = (t: (key: string) => string): NavItem[] => [
   { label: t('nav.history'), path: '/history', icon: <ScrollText className="w-5 h-5" /> },
   { label: t('nav.sevas'), path: '/sevas', icon: <Flower className="w-5 h-5" /> },
   { label: t('nav.donation'), path: '/donation', icon: <Gift className="w-5 h-5" /> },
+  { label: t('nav.live'), path: '/live', icon: <Wifi className="w-5 h-5" /> },
   { label: t('nav.videos'), path: '/videos', icon: <Video className="w-5 h-5" /> },
   { label: t('nav.audio'), path: '/audio', icon: <Music className="w-5 h-5" /> },
   { label: t('nav.library'), path: '/library', icon: <BookOpen className="w-5 h-5" /> },
