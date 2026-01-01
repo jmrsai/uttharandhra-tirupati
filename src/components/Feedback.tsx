@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 import { MessageSquare, Send, CheckCircle2, Loader2 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
-import { FeedbackItem } from '../types';
-import { db, logEvent } from '../firebase';
+import { FeedbackItem } from '../types/types';
+import { db, logEvent } from '../firebase/firebase';
 // Ensure correct modular imports from firestore sub-module
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 

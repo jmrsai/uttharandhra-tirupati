@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { Youtube, PlayCircle, Loader2, Radio } from 'lucide-react';
 import { VIDEOS, YOUTUBE_CONFIG } from '../constants/constants';
-import { VideoItem } from '../types';
+import { VideoItem } from '../types/types';
 import { useLanguage } from '../context/LanguageContext';
 
 const Videos: React.FC = () => {

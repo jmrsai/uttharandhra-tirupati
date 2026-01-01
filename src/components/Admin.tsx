@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useContext } from 'react';
 import {
   Lock, LayoutDashboard, Newspaper, Flower, Image as ImageIcon,
@@ -270,105 +269,104 @@ const Admin: React.FC = () => {
                         activeTab === tab.id
                             ? 'bg-saffron-600 text-white shadow-lg shadow-saffron-200 scale-105'
                             : 'text-stone-500 hover:bg-stone-50'
-                        }`}>\
-                    {tab.icon} {tab.label}\
-                </button>\
-            ))}\
-        </div>\
-\
-        <div className="bg-white rounded-[2.5rem] shadow-2xl border border-stone-100 overflow-hidden min-h-[500px]">\
-            {loading ? (\
-                <div className="flex justify-center items-center h-full p-20">\
-                    <Loader2 className="w-16 h-16 text-saffron-600 animate-spin" />\
-                </div>\
-            ) : (\
-                <>\
-                    {/* LIVE SITE CONTROL (REALTIME DATABASE) */}\
-                    {activeTab === 'site' && (\
-                        <div className="p-10">\
-                            <div className="max-w-3xl mx-auto">\
-                                <div className="text-center mb-12">\
-                                    <h3 className="text-2xl font-bold text-stone-800">Live Site Control</h3>\
-                                    <p className="text-stone-500 mt-1">Changes here will be reflected on the website instantly.</p>\
-                                </div>\
-\
-                                <div className="space-y-8 bg-stone-50 p-10 rounded-3xl border border-saffron-200">\
-                                    <div>\
-                                        <label className="block text-sm font-bold text-stone-500 uppercase tracking-widest mb-3">Temple Status</label>\
-                                        <div className="flex gap-2">\
-                                            {['Open', 'Closed', 'Special Event'].map(status => (\
-                                                <button \
-                                                    key={status}\
-                                                    onClick={() => setSiteStatus({...siteStatus, templeStatus: status})}\
-                                                    className={`px-6 py-3 rounded-xl font-bold text-base transition-all w-full ${siteStatus.templeStatus === status ? 'bg-saffron-600 text-white' : 'bg-white border border-stone-200'}`}>\
-                                                    {status}\
-                                                </button>\
-                                            ))}\
-                                        </div>\
-                                    </div>\
-\
-                                    <div>\
-                                        <label htmlFor="scroll-news" className="block text-sm font-bold text-stone-500 uppercase tracking-widest mb-3">Top Banner Scrolling News</label>\
-                                        <input\
-                                            id="scroll-news"\
-                                            type="text"\
-                                            value={siteStatus.scrollNews}\
-                                            onChange={(e) => setSiteStatus({...siteStatus, scrollNews: e.target.value})}\
-                                            className="w-full p-5 rounded-2xl border border-stone-200 focus:ring-2 focus:ring-saffron-500 outline-none bg-white font-medium text-lg"\
-                                            placeholder="Enter a short announcement..."\
-                                        />\
-                                    </div>\
-\
-                                    <button\
-                                        onClick={handleSiteStatusSave}\
-                                        className="w-full bg-gradient-to-r from-saffron-600 to-saffron-800 text-white font-bold py-5 rounded-2xl hover:shadow-xl transition-all flex items-center justify-center gap-3 text-lg">\
-                                        <Save className="w-6 h-6" /> Publish Live Updates\
-                                    </button>\
-                                </div>\
-                            </div>\
-                        </div>\
-                    )}\
-\
-                    {/* NEWS & EVENTS MANAGEMENT (FIRESTORE) */}\
-                    {activeTab === 'news' && (\
-                        <div className="p-10">\
-                            <div className="flex justify-between items-center mb-10">\
-                                <h3 className="text-2xl font-bold text-stone-800">Temple News & Festival Events</h3>\
-                                <button\
-                                    onClick={() => setEditingNews({ id: '', title: '', date: new Date().toISOString().split('T')[0], description: '', image: 'https://picsum.photos/800/500' })}\
-                                    className="bg-saffron-100 text-saffron-700 px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-saffron-600 hover:text-white transition-all">\
-                                    <Plus className="w-5 h-5" /> Create New Post\
-                                </button>\
-                            </div>\
-                            {/* ... Rest of the news component ... */}\
-                        </div>\
-                    )}\
-\
-                    {/* ARJITHA SEVAS (FIRESTORE) */}\
-                    {activeTab === 'sevas' && (\
-                        <div className="p-10">\
-                            <div className="flex justify-between items-center mb-10">\
-                                <h3 className="text-2xl font-bold text-stone-800">Arjitha Seva Offerings</h3>\
-                                <button\
-                                    onClick={() => setEditingSeva({ id: '', name: '', time: '09:00 AM', description: '', availability: 'Daily' })}\
-                                    className="bg-saffron-100 text-saffron-700 px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-saffron-600 hover:text-white transition-all">\
-                                    <Plus className="w-5 h-5" /> Add New Seva\
-                                </button>\
-                            </div>\
-                             {/* ... Rest of the sevas component ... */}\
-                        </div>\
-                    )}\
-\
-                    {/* FEEDBACK (FIRESTORE) */}\
-                    {activeTab === 'feedback' && (\
-                        <div className="p-10">\
-                            <div className="flex justify-between items-center mb-8">\
-                                <h3 className="text-2xl font-bold text-stone-800">Devotee Feedback & Reports</h3>\
-                                <button onClick={fetchFeedback} className="p-2 hover:bg-stone-100 rounded-full transition-colors">\
-                                    <Sparkles className={`w-5 h-5 text-saffron-500 ${loading ? 'animate-spin' : ''}`} />\
-                                </button>\
-                            </div>\
-                            {/* ... Rest of the feedback component ... */}\
+                        }`}>
+                    {tab.icon} {tab.label}
+                </button>
+            ))}
+        </div>
+
+        <div className="bg-white rounded-[2.5rem] shadow-2xl border border-stone-100 overflow-hidden min-h-[500px]">
+            {loading ? (
+                <div className="flex justify-center items-center h-full p-20">
+                    <Loader2 className="w-16 h-16 text-saffron-600 animate-spin" />
+                </div>
+            ) : (
+                <>
+                    {/* LIVE SITE CONTROL (REALTIME DATABASE) */}
+                    {activeTab === 'site' && (
+                        <div className="p-10">
+                            <div className="max-w-3xl mx-auto">
+                                <div className="text-center mb-12">
+                                    <h3 className="text-2xl font-bold text-stone-800">Live Site Control</h3>
+                                    <p className="text-stone-500 mt-1">Changes here will be reflected on the website instantly.</p>
+                                </div>
+
+                                <div className="space-y-8 bg-stone-50 p-10 rounded-3xl border border-saffron-200">
+                                    <div>
+                                        <label className="block text-sm font-bold text-stone-500 uppercase tracking-widest mb-3">Temple Status</label>
+                                        <div className="flex gap-2">
+                                            {['Open', 'Closed', 'Special Event'].map(status => (
+                                                <button 
+                                                    key={status}
+                                                    onClick={() => setSiteStatus({...siteStatus, templeStatus: status})}
+                                                    className={`px-6 py-3 rounded-xl font-bold text-base transition-all w-full ${siteStatus.templeStatus === status ? 'bg-saffron-600 text-white' : 'bg-white border border-stone-200'}`}>
+                                                    {status}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="scroll-news" className="block text-sm font-bold text-stone-500 uppercase tracking-widest mb-3">Top Banner Scrolling News</label>
+                                        <input
+                                            id="scroll-news"
+                                            type="text"
+                                            value={siteStatus.scrollNews}
+                                            onChange={(e) => setSiteStatus({...siteStatus, scrollNews: e.target.value})}
+                                            className="w-full p-5 rounded-2xl border border-stone-200 focus:ring-2 focus:ring-saffron-500 outline-none bg-white font-medium text-lg"
+                                            placeholder="Enter a short announcement..."
+                                        />
+                                    </div>
+
+                                    <button
+                                        onClick={handleSiteStatusSave}
+                                        className="w-full bg-gradient-to-r from-saffron-600 to-saffron-800 text-white font-bold py-5 rounded-2xl hover:shadow-xl transition-all flex items-center justify-center gap-3 text-lg">
+                                        <Save className="w-6 h-6" /> Publish Live Updates
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* NEWS & EVENTS MANAGEMENT (FIRESTORE) */}
+                    {activeTab === 'news' && (
+                        <div className="p-10">
+                            <div className="flex justify-between items-center mb-10">
+                                <h3 className="text-2xl font-bold text-stone-800">Temple News & Festival Events</h3>
+                                <button
+                                    onClick={() => setEditingNews({ id: '', title: '', date: new Date().toISOString().split('T')[0], description: '', image: 'https://picsum.photos/800/500' })}
+                                    className="bg-saffron-100 text-saffron-700 px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-saffron-600 hover:text-white transition-all">
+                                    <Plus className="w-5 h-5" /> Create New Post
+                                </button>
+                            </div>
+                            {/* ... Rest of the news component ... */}
+                        </div>
+                    )}
+
+                    {/* ARJITHA SEVAS (FIRESTORE) */}
+                    {activeTab === 'sevas' && (
+                        <div className="p-10">
+                            <div className="flex justify-between items-center mb-10">
+                                <h3 className="text-2xl font-bold text-stone-800">Arjitha Seva Offerings</h3>
+                                <button
+                                    onClick={() => setEditingSeva({ id: '', name: '', time: '09:00 AM', description: '', availability: 'Daily' })}
+                                    className="bg-saffron-100 text-saffron-700 px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-saffron-600 hover:text-white transition-all">
+                                    <Plus className="w-5 h-5" /> Add New Seva
+                                </button>
+                            </div>
+                             {/* ... Rest of the sevas component ... */}
+                        </div>
+                    )}
+                    {/* FEEDBACK (FIRESTORE) */}
+                    {activeTab === 'feedback' && (
+                        <div className="p-10">
+                            <div className="flex justify-between items-center mb-8">
+                                <h3 className="text-2xl font-bold text-stone-800">Devotee Feedback & Reports</h3>
+                                <button onClick={() => fetchFeedback()} className="p-2 hover:bg-stone-100 rounded-full transition-colors">
+                                    <Sparkles className={`w-5 h-5 text-saffron-500 ${loading ? 'animate-spin' : ''}`} />
+                                </button>
+                            </div>
+                            {/* ... Rest of the feedback component ... */}
                         </div>
                     )}
                 </>

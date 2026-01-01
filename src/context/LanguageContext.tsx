@@ -1,10 +1,12 @@
 
-import React, { createContext, useState, ReactNode, useContext } from 'react';
+import React, { createContext, useState, ReactNode, useContext, useMemo } from 'react';
+import { getTranslator } from '../i18n';
 
 // Define the shape of the context data
 interface LanguageContextType {
   language: string;
   setLanguage: (language: string) => void;
+  t: (key: string) => string;
 }
 
 // Create the context with a default value
@@ -13,9 +15,11 @@ export const LanguageContext = createContext<LanguageContextType | undefined>(un
 // Create the provider component
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
   const [language, setLanguage] = useState('en');
+  
+  const t = useMemo(() => getTranslator(language), [language]);
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t }}>
       {children}
     </LanguageContext.Provider>
   );

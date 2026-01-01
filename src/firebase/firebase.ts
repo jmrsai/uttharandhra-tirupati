@@ -4,16 +4,15 @@ import { getFirestore } from "firebase/firestore";
 import { getDatabase } from "firebase/database";
 import { getAnalytics, logEvent as fbLogEvent, isSupported } from "firebase/analytics";
 
-// Note: Replace with your actual Firebase project configuration
+
 const firebaseConfig = {
-  apiKey: "AIzaSyAs-EXAMPLE-KEY", // Replace with real key
-  authDomain: "uttharandhra-tirupati.firebaseapp.com",
-  projectId: "uttharandhra-tirupati",
-  storageBucket: "uttharandhra-tirupati.appspot.com",
-  messagingSenderId: "1234567890",
-  appId: "1:1234567890:web:abcdef123456",
-  measurementId: "G-EXAMPLE",
-  databaseURL: "https://global-trotter-6p38a-default-rtdb.firebaseio.com/"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: "global-trotter-6p38a.firebaseapp.com",
+  databaseURL: "https://global-trotter-6p38a-default-rtdb.firebaseio.com",
+  projectId: "global-trotter-6p38a",
+  storageBucket: "global-trotter-6p38a.firebasestorage.app",
+  messagingSenderId: "525620583648",
+  appId: "1:525620583648:web:ef7b33895b35e752090485"
 };
 
 let app: any;

@@ -6,7 +6,7 @@ import {
   Languages, Settings, MessageSquare, UserCircle, Sparkles,
   ChevronRight, Trash2, CheckCheck
 } from 'lucide-react';
-import { NAV_ITEMS, SCROLL_NEWS } from '../constants/constants';
+import { getNavItems, SCROLL_NEWS } from '../constants/constants';
 import { useLanguage } from '../context/LanguageContext';
 import { useNotifications } from '../context/NotificationContext';
 import Logo from './Logo';
@@ -18,6 +18,7 @@ const Navbar: React.FC = () => {
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
   const location = useLocation();
   const notifRef = useRef<HTMLDivElement>(null);
+  const navItems = getNavItems(t);
 
   useEffect(() => {
     setIsOpen(false);
@@ -49,7 +50,7 @@ const Navbar: React.FC = () => {
             </div>
             
             <div className="hidden lg:flex items-center space-x-1">
-              {NAV_ITEMS(t).map((item) => (
+              {navItems.map((item) => (
                 <NavLink
                   key={item.path}
                   to={item.path}
@@ -196,7 +197,7 @@ const Navbar: React.FC = () => {
         {isOpen && (
           <div className="lg:hidden bg-saffron-700 shadow-xl border-t border-saffron-500">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-              {NAV_ITEMS(t).map((item) => (
+              {navItems.map((item) => (
                 <NavLink
                   key={item.path}
                   to={item.path}
@@ -226,7 +227,7 @@ const Navbar: React.FC = () => {
       
       <div className="bg-saffron-900 text-gold-500 text-sm py-2 overflow-hidden relative shadow-md">
          <div className="max-w-7xl mx-auto px-4 flex items-center">
-            <span className="bg-saffron-800 px-2 py-0.5 rounded text-white text-[10px] font-bold mr-2 flex items-center flex-shrink-0 z-10 border border-saffron-700">
+            <span className="bg-saffron-800 px-2 py-0.5 rounded text-white text-[10px] font-bold mr-2 flex-shrink-0 z-10 border border-saffron-700">
               <Bell className="w-3 h-3 mr-1" /> Updates
             </span>
             <div className="overflow-hidden whitespace-nowrap flex-grow mask-gradient-right">

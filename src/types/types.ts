@@ -77,3 +77,8 @@ export interface PushNotification {
   timestamp: string;
   isRead: boolean;
 }
+
+export interface SiteStatus {
+  templeStatus: string;
+  scrollNews: string;
+}
