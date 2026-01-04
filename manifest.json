@@ -1,0 +1,21 @@
+{
+    "name": "Uttharandhra Tirupati - Pendurthi Devasthanam",
+    "short_name": "UT Tirupati",
+    "description": "Information and services for Uttharandhra Tirupati Temple, Pendurthi.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#f97316",
+    "icons": [
+        {
+            "src": "logo192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "logo512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}

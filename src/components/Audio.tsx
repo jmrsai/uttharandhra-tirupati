@@ -5,35 +5,47 @@ import { useLanguage } from '../context/LanguageContext';
 import { AudioItem } from '../types/types';
 import { rtdb } from '../firebase/firebase';
 import { ref, onValue } from 'firebase/database';
+import { supabaseService } from '../services/supabaseService';
 
 const Audio: React.FC = () => {
   const { language, t } = useLanguage();
   const [tracks, setTracks] = useState<AudioItem[]>([]);
-  
+
   const [currentTrack, setCurrentTrack] = useState<AudioItem | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  
+
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  useEffect(() => {
-    const tracksRef = ref(rtdb, `audio_tracks/${language}`);
-    const unsubscribe = onValue(tracksRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        setTracks(Object.values(data));
-      } else {
-        setTracks([]);
+  const loadTracks = async () => {
+    try {
+      // Try Supabase first
+      const sbTracks = await supabaseService.getAudioTracks(language);
+      if (sbTracks && sbTracks.length > 0) {
+        setTracks(sbTracks);
+        return;
       }
-    });
 
-    return () => unsubscribe();
+      // Fallback to RTDB
+      const tracksRef = ref(rtdb, `audio_tracks/${language}`);
+      onValue(tracksRef, (snapshot) => {
+        const data = snapshot.val();
+        setTracks(data ? Object.values(data) : []);
+      }, { onlyOnce: true });
+
+    } catch (err) {
+      console.error("Audio tracks load failed", err);
+    }
+  };
+
+  useEffect(() => {
+    loadTracks();
   }, [language]);
 
   useEffect(() => {
     audioRef.current = new window.Audio();
-    
+
     const audio = audioRef.current;
 
     const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
@@ -101,30 +113,27 @@ const Audio: React.FC = () => {
 
       <div className="grid grid-cols-1 gap-4">
         {tracks.map((track) => (
-          <div 
-            key={track.id} 
+          <div
+            key={track.id}
             onClick={() => handleTrackSelect(track)}
-            className={`flex items-center p-5 rounded-2xl transition-all duration-300 border cursor-pointer group ${
-              currentTrack?.id === track.id 
-                ? 'bg-accent/20 border-accent/80 shadow-lg scale-[1.02]' 
-                : 'bg-base-100 border-neutral/20 hover:bg-neutral/10 hover:shadow-md'
-            }`}
+            className={`flex items-center p-5 rounded-2xl transition-all duration-300 border cursor-pointer group ${currentTrack?.id === track.id
+              ? 'bg-accent/20 border-accent/80 shadow-lg scale-[1.02]'
+              : 'bg-base-100 border-neutral/20 hover:bg-neutral/10 hover:shadow-md'
+              }`}
           >
-            <div className={`flex-shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${
-              currentTrack?.id === track.id ? 'bg-primary text-white' : 'bg-accent/50 text-primary group-hover:bg-accent/70'
-            }`}>
+            <div className={`flex-shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center transition-all ${currentTrack?.id === track.id ? 'bg-primary text-white' : 'bg-accent/50 text-primary group-hover:bg-accent/70'
+              }`}>
               {currentTrack?.id === track.id && isPlaying ? (
                 <Pause className="w-7 h-7" />
               ) : (
                 <Play className="w-7 h-7 ml-1" />
               )}
             </div>
-            
+
             <div className="ml-5 flex-grow">
               <div className="flex items-center gap-3 mb-1">
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-lg uppercase tracking-widest ${
-                  track.category === 'Sloka' ? 'bg-blue-100 text-blue-700 border border-blue-200' : 'bg-orange-100 text-orange-700 border border-orange-200'
-                }`}>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-lg uppercase tracking-widest ${track.category === 'Sloka' ? 'bg-blue-100 text-blue-700 border border-blue-200' : 'bg-orange-100 text-orange-700 border border-orange-200'
+                  }`}>
                   {track.category}
                 </span>
                 <span className="text-xs text-neutral font-medium">{track.duration}</span>
@@ -155,7 +164,7 @@ const Audio: React.FC = () => {
                 <div className="flex-grow w-full flex flex-col gap-2">
                   <div className="flex items-center justify-center gap-6">
                     <button className="text-neutral hover:text-primary transition-colors"><SkipBack className="w-6 h-6" /></button>
-                    <button 
+                    <button
                       onClick={togglePlay}
                       className="bg-primary text-white p-3 rounded-full shadow-lg hover:scale-110 active:scale-95 transition-all"
                     >
@@ -167,7 +176,7 @@ const Audio: React.FC = () => {
                   <div className="flex items-center gap-4">
                     <span className="text-xs font-bold text-neutral w-10 text-right">{formatTime(currentTime)}</span>
                     <div className="flex-grow relative group h-6 flex items-center">
-                      <input 
+                      <input
                         type="range"
                         min="0"
                         max={duration || 0}

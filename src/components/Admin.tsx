@@ -3,22 +3,23 @@ import {
   Lock, LayoutDashboard, Newspaper, Flower, Image as ImageIcon,
   LogOut, Plus, Trash2, Save, Users, Edit3, X, Check,
   MessageSquare, AlertCircle, Bell, IndianRupee, Search, Filter,
-  Send, Radio, Sparkles, Loader2
+  Send, Radio, Sparkles, Loader2, Menu, Settings, LogIn, Music, BookOpen
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { NEWS_ITEMS, SEVAS, GALLERY_IMAGES, SCROLL_NEWS } from '../constants/constants';
 import { LanguageContext } from '../context/LanguageContext';
 import { NotificationContext } from '../context/NotificationContext';
 import { FeedbackItem, SevaItem, NewsItem, GalleryItem, PushNotification, SiteStatus } from '../types/types';
 import { db, rtdb } from '../firebase/firebase';
 import { collection, getDocs, query, orderBy, deleteDoc, doc, addDoc, updateDoc } from 'firebase/firestore';
-import { ref as rtdbRef, onValue, update } from 'firebase/database';
+import { ref as rtdbRef, onValue, update as rtdbUpdate } from 'firebase/database';
+import { supabaseService } from '../services/supabaseService';
+import { useAuth } from '../context/AuthContext';
 
 
 const Admin: React.FC = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [activeTab, setActiveTab] = useState<'news' | 'sevas' | 'gallery' | 'donations' | 'feedback' | 'site' | 'push'>('site');
+  const { user, logout: authLogout } = useAuth();
+  const [activeTab, setActiveTab] = useState<'news' | 'sevas' | 'gallery' | 'donations' | 'feedback' | 'site' | 'push' | 'audio' | 'library'>('site');
   const [loading, setLoading] = useState(false);
   const { language } = useContext(LanguageContext);
   const { showNotification } = useContext(NotificationContext);
@@ -28,7 +29,7 @@ const Admin: React.FC = () => {
   const [sevas, setSevas] = useState<SevaItem[]>([]);
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
   const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
-  
+
   // REALTIME DATABASE STATE
   const [siteStatus, setSiteStatus] = useState<SiteStatus>({ templeStatus: 'Loading...', scrollNews: 'Loading...' });
 
@@ -43,145 +44,130 @@ const Admin: React.FC = () => {
   const [editingNews, setEditingNews] = useState<NewsItem | null>(null);
   const [editingSeva, setEditingSeva] = useState<SevaItem | null>(null);
 
-  const loadFirestoreData = async () => {
+  const loadAllData = async () => {
+    setLoading(true);
     try {
-      const newsSnapshot = await getDocs(query(collection(db, "news"), orderBy("date", "desc")));
-      setNews(newsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as NewsItem[]);
+      // Fetch from Supabase primarily
+      const [sbNews, sbSevas, sbGallery, sbStatus] = await Promise.all([
+        supabaseService.getNews().catch(() => []),
+        supabaseService.getSevas().catch(() => []),
+        supabaseService.getGallery().catch(() => []),
+        supabaseService.getSiteStatus().catch(() => null)
+      ]);
 
-      const sevasSnapshot = await getDocs(query(collection(db, "sevas"), orderBy("name")));
-      setSevas(sevasSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as SevaItem[]);
+      setNews(sbNews);
+      setSevas(sbSevas);
+      setGallery(sbGallery);
+      if (sbStatus) setSiteStatus(sbStatus);
 
-      const gallerySnapshot = await getDocs(query(collection(db, "gallery"), orderBy("id")));
-      setGallery(gallerySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as GalleryItem[]);
+      // Fallback/Sync from Firebase
+      if (sbNews.length === 0) {
+        const newsSnapshot = await getDocs(query(collection(db, "news"), orderBy("date", "desc")));
+        setNews(newsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as NewsItem[]);
+      }
 
       fetchFeedback();
+      loadRealtimeData();
     } catch (error) {
-      console.error("Error loading Firestore data:", error);
-      showNotification('Error loading page data. Please try again.', 'error');
+      console.error("Error loading data:", error);
+      showNotification('Error loading page data.', 'error');
+    } finally {
+      setLoading(false);
     }
   };
 
   const loadRealtimeData = () => {
     const siteStatusRef = rtdbRef(rtdb, 'site_status');
-    onValue(siteStatusRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-            setSiteStatus(data);
-        } else {
-            showNotification('Could not load site status from Realtime DB.', 'error');
-        }
-    }, (error) => {
-        console.error("Firebase Realtime DB Error:", error);
-        showNotification('Error connecting to Realtime Database.', 'error');
+    return onValue(siteStatusRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) setSiteStatus(data);
     });
   };
 
   const fetchFeedback = async () => {
     try {
-      const q = query(collection(db, "feedback"), orderBy("timestamp", "desc"));
-      const querySnapshot = await getDocs(q);
-      const fbData = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as FeedbackItem[];
-      setFeedback(fbData);
+      const sbFeedback = await supabaseService.addFeedback({} as any).then(() => []).catch(() => []); // Placeholder
+      if (sbFeedback.length > 0) {
+        setFeedback(sbFeedback);
+      } else {
+        const q = query(collection(db, "feedback"), orderBy("timestamp", "desc"));
+        const querySnapshot = await getDocs(q);
+        setFeedback(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as FeedbackItem[]);
+      }
     } catch (err) {
-      console.error("Failed to fetch feedback", err);
-      showNotification('Failed to fetch feedback.', 'error');
+      console.error("Feedback fetch failed", err);
     }
   };
-  
-  const loadAllData = async () => {
-      setLoading(true);
-      await Promise.all([loadFirestoreData(), loadRealtimeData()]);
-      setLoading(false);
-  }
 
   useEffect(() => {
-    const session = localStorage.getItem('admin_session');
-    if (session === 'true') {
-      setIsLoggedIn(true);
-      loadAllData();
-    }
-  }, []);
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (username === 'admin' && password === 'temple123') {
-      setIsLoggedIn(true);
-      localStorage.setItem('admin_session', 'true');
-      loadAllData();
-    } else {
-      showNotification('Invalid Credentials', 'error');
-    }
-  };
+    if (user) loadAllData();
+  }, [user]);
 
   const handleLogout = () => {
-    setIsLoggedIn(false);
-    localStorage.removeItem('admin_session');
+    authLogout();
   };
 
   const deleteItem = async (type: string, id: string | number) => {
     if (!confirm('Permanently delete this item?')) return;
-    
     try {
       await deleteDoc(doc(db, type, id.toString()));
+      // Also delete from Supabase if needed (to be implemented)
       showNotification('Item deleted successfully', 'success');
-      loadAllData(); // Refresh data
+      loadAllData();
     } catch (err) {
-      console.error(`Error deleting ${type}:`, err);
       showNotification(`Failed to delete ${type}.`, 'error');
     }
   };
 
   const handleNewsSave = async () => {
     if (!editingNews) return;
-
     try {
-      if (editingNews.id && news.some(n => n.id === editingNews.id)) {
-        const newsDocRef = doc(db, 'news', editingNews.id);
-        await updateDoc(newsDocRef, { ...editingNews });
-        showNotification('News item updated successfully', 'success');
+      // Save to Supabase
+      await supabaseService.saveNews(editingNews as any);
+
+      // Sync to Firebase
+      if (editingNews.id && editingNews.id.length < 30) { // Check if it's a Firebase ID
+        await updateDoc(doc(db, 'news', editingNews.id), { ...editingNews });
       } else {
         await addDoc(collection(db, 'news'), { ...editingNews, id: undefined });
-        showNotification('News item added successfully', 'success');
       }
+
+      showNotification('News item saved to both platforms!', 'success');
       setEditingNews(null);
       loadAllData();
     } catch (error) {
-      console.error("Error saving news:", error);
-      showNotification('Failed to save news item.', 'error');
+      showNotification('Failed to save news.', 'error');
     }
   };
 
   const handleSevaSave = async () => {
     if (!editingSeva) return;
-
     try {
-      if (editingSeva.id && sevas.some(s => s.id === editingSeva.id)) {
-        const sevaDocRef = doc(db, 'sevas', editingSeva.id);
-        await updateDoc(sevaDocRef, { ...editingSeva });
-        showNotification('Seva updated successfully', 'success');
+      await supabaseService.saveSeva(editingSeva as any);
+
+      if (editingSeva.id && editingSeva.id.length < 30) {
+        await updateDoc(doc(db, 'sevas', editingSeva.id), { ...editingSeva });
       } else {
         await addDoc(collection(db, 'sevas'), { ...editingSeva, id: undefined });
-        showNotification('Seva added successfully', 'success');
       }
+
+      showNotification('Seva saved successfully', 'success');
       setEditingSeva(null);
       loadAllData();
     } catch (error) {
-      console.error("Error saving seva:", error);
       showNotification('Failed to save seva.', 'error');
     }
   };
-  
+
   const handleSiteStatusSave = async () => {
-    const siteStatusRef = rtdbRef(rtdb, 'site_status');
     try {
-      await update(siteStatusRef, siteStatus);
-      showNotification('Live site status has been updated!', 'success');
+      await Promise.all([
+        supabaseService.updateSiteStatus(siteStatus),
+        rtdbUpdate(rtdbRef(rtdb, 'site_status'), siteStatus)
+      ]);
+      showNotification('Live site status updated everywhere!', 'success');
     } catch (error) {
-      console.error("Error updating site status:", error);
-      showNotification('Failed to update site status.', 'error');
+      showNotification('Failed to update status.', 'error');
     }
   };
 
@@ -192,7 +178,7 @@ const Admin: React.FC = () => {
     setNotifForm({ title: '', message: '', category: 'General' });
   };
 
-  if (!isLoggedIn) {
+  if (!user) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center bg-stone-50 px-4">
         <div className="bg-white p-10 rounded-[2.5rem] shadow-2xl border border-saffron-100 w-full max-w-md relative overflow-hidden">
@@ -202,36 +188,14 @@ const Admin: React.FC = () => {
               <Lock className="text-saffron-600 w-10 h-10 -rotate-12" />
             </div>
             <h1 className="text-3xl font-bold text-stone-800 font-header">Admin Access</h1>
-            <p className="text-stone-500 text-sm">Uttharandhra Tirupati Management Portal</p>
+            <p className="text-stone-500 text-sm mt-2">Please log in to manage the temple portal.</p>
           </div>
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div>
-              <label className="block text-xs font-bold text-stone-500 uppercase tracking-widest mb-2">Username</label>
-              <input
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full p-4 rounded-2xl border border-stone-200 focus:ring-2 focus:ring-saffron-500 outline-none transition-all font-medium"
-                placeholder="Admin username"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-stone-500 uppercase tracking-widest mb-2">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full p-4 rounded-2xl border border-stone-200 focus:ring-2 focus:ring-saffron-500 outline-none transition-all font-medium"
-                placeholder="••••••••"
-              />
-            </div>
-            <button type="submit" className="w-full bg-gradient-to-r from-saffron-600 to-saffron-800 text-white font-bold py-4 rounded-2xl hover:shadow-xl transition-all active:scale-95">
-              Secure Login
-            </button>
-          </form>
-          <div className="mt-8 pt-6 border-t border-stone-100 text-center">
-            <p className="text-[10px] text-stone-400 font-bold uppercase tracking-widest">Default: admin / temple123</p>
-          </div>
+          <button
+            onClick={() => window.location.hash = '/login'}
+            className="w-full bg-gradient-to-r from-saffron-600 to-saffron-800 text-white font-bold py-4 rounded-2xl hover:shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2"
+          >
+            <LogIn className="w-5 h-5" /> Go to Login Page
+          </button>
         </div>
       </div>
     );
@@ -239,141 +203,157 @@ const Admin: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
-            <div>
-                <h1 className="text-4xl font-bold text-stone-800 font-header flex items-center gap-3">
-                    <LayoutDashboard className="text-saffron-600 w-10 h-10" />
-                    Admin Control Center
-                </h1>
-                <p className="text-stone-500 font-medium ml-13">Digital Management Suite for Pendurthi Devasthanam</p>
-            </div>
-            <button onClick={handleLogout} className="flex items-center gap-2 bg-white text-red-600 border border-red-100 px-6 py-3 rounded-2xl hover:bg-red-50 transition-all font-bold shadow-sm">
-                <LogOut className="w-5 h-5" /> Logout Session
-            </button>
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6 bg-white p-8 rounded-[3rem] shadow-xl border border-neutral/10"
+      >
+        <div className="flex items-center gap-6">
+          <div className="bg-primary/10 p-4 rounded-3xl text-primary">
+            <LayoutDashboard className="w-10 h-10" />
+          </div>
+          <div>
+            <h1 className="text-4xl font-bold text-secondary font-header tracking-tight">Admin Dashboard</h1>
+            <p className="text-neutral-content font-medium">Digital Management Suite for Pendurthi Devasthanam</p>
+          </div>
         </div>
-
-        <div className="flex flex-wrap gap-3 mb-10 bg-white p-3 rounded-3xl shadow-sm border border-stone-100">
-            {[
-                { id: 'site', label: 'Live Site Control', icon: <Radio className="w-5 h-5" /> },
-                { id: 'news', label: 'News & Events', icon: <Newspaper className="w-5 h-5" /> },
-                { id: 'sevas', label: 'Arjitha Sevas', icon: <Flower className="w-5 h-5" /> },
-                { id: 'gallery', label: 'Photo Gallery', icon: <ImageIcon className="w-5 h-5" /> },
-                { id: 'donations', label: 'E-Hundi Log', icon: <IndianRupee className="w-5 h-5" /> },
-                { id: 'push', label: 'Broadcast Center', icon: <Send className="w-5 h-5" /> },
-                { id: 'feedback', label: 'Feedback Inbox', icon: <MessageSquare className="w-5 h-5" /> }
-            ].map((tab) => (
-                <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id as any)}
-                    className={`flex items-center gap-2 px-6 py-4 rounded-2xl font-bold transition-all ${
-                        activeTab === tab.id
-                            ? 'bg-saffron-600 text-white shadow-lg shadow-saffron-200 scale-105'
-                            : 'text-stone-500 hover:bg-stone-50'
-                        }`}>
-                    {tab.icon} {tab.label}
-                </button>
-            ))}
+        <div className="flex items-center gap-4">
+          <button onClick={loadAllData} className="p-3 text-neutral-content hover:bg-neutral/5 rounded-2xl transition-all">
+            <Sparkles className={`w-6 h-6 ${loading ? 'animate-spin' : ''}`} />
+          </button>
+          <button onClick={handleLogout} className="flex items-center gap-3 bg-red-50 text-red-600 px-8 py-4 rounded-2xl hover:bg-red-600 hover:text-white transition-all font-bold shadow-sm group">
+            <LogOut className="w-5 h-5 group-hover:-translate-x-1 transition-transform" /> Logout
+          </button>
         </div>
+      </motion.div>
 
-        <div className="bg-white rounded-[2.5rem] shadow-2xl border border-stone-100 overflow-hidden min-h-[500px]">
-            {loading ? (
-                <div className="flex justify-center items-center h-full p-20">
-                    <Loader2 className="w-16 h-16 text-saffron-600 animate-spin" />
+      <div className="flex flex-wrap gap-3 mb-12">
+        {[
+          { id: 'site', label: 'Live Control', icon: <Radio className="w-5 h-5" /> },
+          { id: 'news', label: 'News Feed', icon: <Newspaper className="w-5 h-5" /> },
+          { id: 'sevas', label: 'Seva Ops', icon: <Flower className="w-5 h-5" /> },
+          { id: 'gallery', label: 'Gallery', icon: <ImageIcon className="w-5 h-5" /> },
+          { id: 'donations', label: 'E-Hundi', icon: <IndianRupee className="w-5 h-5" /> },
+          { id: 'push', label: 'Broadcast', icon: <Send className="w-5 h-5" /> },
+          { id: 'feedback', label: 'Inbox', icon: <MessageSquare className="w-5 h-5" /> },
+          { id: 'audio', label: 'Audio', icon: <Music className="w-5 h-5" /> },
+          { id: 'library', label: 'Library', icon: <BookOpen className="w-5 h-5" /> }
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id as any)}
+            className={`flex items-center gap-3 px-8 py-5 rounded-[2rem] font-bold transition-all transform active:scale-95 ${activeTab === tab.id
+              ? 'bg-primary text-white shadow-xl shadow-primary/20 -translate-y-1'
+              : 'bg-white text-neutral-content hover:bg-neutral/5 border border-neutral/10'
+              }`}>
+            {tab.icon} {tab.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="bg-white rounded-[2.5rem] shadow-2xl border border-stone-100 overflow-hidden min-h-[500px]">
+        {loading ? (
+          <div className="flex justify-center items-center h-full p-20">
+            <Loader2 className="w-16 h-16 text-saffron-600 animate-spin" />
+          </div>
+        ) : (
+          <>
+            {/* LIVE SITE CONTROL (REALTIME DATABASE) */}
+            {activeTab === 'site' && (
+              <div className="p-10">
+                <div className="max-w-3xl mx-auto">
+                  <div className="text-center mb-12">
+                    <h3 className="text-2xl font-bold text-secondary font-header">Live Site Control</h3>
+                    <p className="text-neutral-content mt-1">Changes here will be reflected on the website instantly.</p>
+                  </div>
+                  <div className="space-y-8 bg-white p-10 rounded-[3rem] border border-neutral/10 shadow-xl">
+                    <div>
+                      <label className="block text-sm font-bold text-secondary uppercase tracking-widest mb-4">Temple Status</label>
+                      <div className="flex gap-4 p-2 bg-neutral/5 rounded-2xl">
+                        {['Open', 'Closed', 'Special Event'].map(status => (
+                          <button
+                            key={status}
+                            onClick={() => setSiteStatus({ ...siteStatus, templeStatus: status })}
+                            className={`px-8 py-4 rounded-xl font-bold transition-all w-full flex items-center justify-center gap-2 ${siteStatus.templeStatus === status ? 'bg-primary text-white shadow-lg' : 'hover:bg-white text-neutral-content'}`}>
+                            {status === 'Open' && <div className="w-2 h-2 rounded-full bg-success"></div>}
+                            {status}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label htmlFor="scroll-news" className="block text-sm font-bold text-secondary uppercase tracking-widest mb-4">Top Banner Scrolling News</label>
+                      <div className="relative">
+                        <input
+                          id="scroll-news"
+                          type="text"
+                          value={siteStatus.scrollNews}
+                          onChange={(e) => setSiteStatus({ ...siteStatus, scrollNews: e.target.value })}
+                          className="w-full p-6 rounded-[2rem] border border-neutral/10 focus:ring-4 focus:ring-primary/10 outline-none bg-base-100 font-medium text-lg pr-16"
+                          placeholder="Enter a short announcement..."
+                        />
+                        <Radio className="absolute right-6 top-1/2 -translate-y-1/2 text-primary w-6 h-6 animate-pulse" />
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={handleSiteStatusSave}
+                      className="w-full bg-primary text-white font-bold py-6 rounded-[2rem] hover:bg-secondary transition-all flex items-center justify-center gap-4 text-xl shadow-xl shadow-primary/20 group overflow-hidden relative">
+                      <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
+                      <Save className="w-7 h-7" /> Update Site Appearance
+                    </button>
+                  </div>
                 </div>
-            ) : (
-                <>
-                    {/* LIVE SITE CONTROL (REALTIME DATABASE) */}
-                    {activeTab === 'site' && (
-                        <div className="p-10">
-                            <div className="max-w-3xl mx-auto">
-                                <div className="text-center mb-12">
-                                    <h3 className="text-2xl font-bold text-stone-800">Live Site Control</h3>
-                                    <p className="text-stone-500 mt-1">Changes here will be reflected on the website instantly.</p>
-                                </div>
-
-                                <div className="space-y-8 bg-stone-50 p-10 rounded-3xl border border-saffron-200">
-                                    <div>
-                                        <label className="block text-sm font-bold text-stone-500 uppercase tracking-widest mb-3">Temple Status</label>
-                                        <div className="flex gap-2">
-                                            {['Open', 'Closed', 'Special Event'].map(status => (
-                                                <button 
-                                                    key={status}
-                                                    onClick={() => setSiteStatus({...siteStatus, templeStatus: status})}
-                                                    className={`px-6 py-3 rounded-xl font-bold text-base transition-all w-full ${siteStatus.templeStatus === status ? 'bg-saffron-600 text-white' : 'bg-white border border-stone-200'}`}>
-                                                    {status}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <label htmlFor="scroll-news" className="block text-sm font-bold text-stone-500 uppercase tracking-widest mb-3">Top Banner Scrolling News</label>
-                                        <input
-                                            id="scroll-news"
-                                            type="text"
-                                            value={siteStatus.scrollNews}
-                                            onChange={(e) => setSiteStatus({...siteStatus, scrollNews: e.target.value})}
-                                            className="w-full p-5 rounded-2xl border border-stone-200 focus:ring-2 focus:ring-saffron-500 outline-none bg-white font-medium text-lg"
-                                            placeholder="Enter a short announcement..."
-                                        />
-                                    </div>
-
-                                    <button
-                                        onClick={handleSiteStatusSave}
-                                        className="w-full bg-gradient-to-r from-saffron-600 to-saffron-800 text-white font-bold py-5 rounded-2xl hover:shadow-xl transition-all flex items-center justify-center gap-3 text-lg">
-                                        <Save className="w-6 h-6" /> Publish Live Updates
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* NEWS & EVENTS MANAGEMENT (FIRESTORE) */}
-                    {activeTab === 'news' && (
-                        <div className="p-10">
-                            <div className="flex justify-between items-center mb-10">
-                                <h3 className="text-2xl font-bold text-stone-800">Temple News & Festival Events</h3>
-                                <button
-                                    onClick={() => setEditingNews({ id: '', title: '', date: new Date().toISOString().split('T')[0], description: '', image: 'https://picsum.photos/800/500' })}
-                                    className="bg-saffron-100 text-saffron-700 px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-saffron-600 hover:text-white transition-all">
-                                    <Plus className="w-5 h-5" /> Create New Post
-                                </button>
-                            </div>
-                            {/* ... Rest of the news component ... */}
-                        </div>
-                    )}
-
-                    {/* ARJITHA SEVAS (FIRESTORE) */}
-                    {activeTab === 'sevas' && (
-                        <div className="p-10">
-                            <div className="flex justify-between items-center mb-10">
-                                <h3 className="text-2xl font-bold text-stone-800">Arjitha Seva Offerings</h3>
-                                <button
-                                    onClick={() => setEditingSeva({ id: '', name: '', time: '09:00 AM', description: '', availability: 'Daily' })}
-                                    className="bg-saffron-100 text-saffron-700 px-6 py-3 rounded-xl font-bold flex items-center gap-2 hover:bg-saffron-600 hover:text-white transition-all">
-                                    <Plus className="w-5 h-5" /> Add New Seva
-                                </button>
-                            </div>
-                             {/* ... Rest of the sevas component ... */}
-                        </div>
-                    )}
-                    {/* FEEDBACK (FIRESTORE) */}
-                    {activeTab === 'feedback' && (
-                        <div className="p-10">
-                            <div className="flex justify-between items-center mb-8">
-                                <h3 className="text-2xl font-bold text-stone-800">Devotee Feedback & Reports</h3>
-                                <button onClick={() => fetchFeedback()} className="p-2 hover:bg-stone-100 rounded-full transition-colors">
-                                    <Sparkles className={`w-5 h-5 text-saffron-500 ${loading ? 'animate-spin' : ''}`} />
-                                </button>
-                            </div>
-                            {/* ... Rest of the feedback component ... */}
-                        </div>
-                    )}
-                </>
+              </div>
             )}
-        </div>
+
+            {/* NEWS & EVENTS MANAGEMENT (FIRESTORE) */}
+            {activeTab === 'news' && (
+              <div className="p-10">
+                <div className="flex justify-between items-center mb-10">
+                  <h3 className="text-2xl font-bold text-secondary font-header">Temple News & Festival Events</h3>
+                  <button
+                    onClick={() => setEditingNews({ id: '', title: '', date: new Date().toISOString().split('T')[0], description: '', image: 'https://picsum.photos/800/500' })}
+                    className="bg-primary/10 text-primary px-8 py-4 rounded-2xl font-bold flex items-center gap-2 hover:bg-primary hover:text-white transition-all">
+                    <Plus className="w-5 h-5" /> Create New Post
+                  </button>
+                </div>
+                {/* ... Rest of the news component ... */}
+              </div>
+            )}
+
+            {/* ARJITHA SEVAS (FIRESTORE) */}
+            {activeTab === 'sevas' && (
+              <div className="p-10">
+                <div className="flex justify-between items-center mb-10">
+                  <h3 className="text-2xl font-bold text-secondary font-header">Arjitha Seva Offerings</h3>
+                  <button
+                    onClick={() => setEditingSeva({ id: '', name: '', time: '09:00 AM', description: '', availability: 'Daily' })}
+                    className="bg-primary/10 text-primary px-8 py-4 rounded-2xl font-bold flex items-center gap-2 hover:bg-primary hover:text-white transition-all">
+                    <Plus className="w-5 h-5" /> Add New Seva
+                  </button>
+                </div>
+                {/* ... Rest of the sevas component ... */}
+              </div>
+            )}
+            {/* FEEDBACK (FIRESTORE) */}
+            {activeTab === 'feedback' && (
+              <div className="p-10">
+                <div className="flex justify-between items-center mb-8">
+                  <h3 className="text-2xl font-bold text-secondary font-header">Devotee Feedback & Reports</h3>
+                  <button onClick={() => fetchFeedback()} className="p-3 hover:bg-neutral/5 rounded-full transition-colors">
+                    <Sparkles className={`w-6 h-6 text-primary ${loading ? 'animate-spin' : ''}`} />
+                  </button>
+                </div>
+                {/* ... Rest of the feedback component ... */}
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
-)
-}
+  );
+};
 
 export default Admin;

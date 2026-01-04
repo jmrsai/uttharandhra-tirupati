@@ -5,6 +5,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { FeedbackItem } from '../types/types';
 import { db, logEvent } from '../firebase/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { supabaseService } from '../services/supabaseService';
 
 const Feedback: React.FC = () => {
   const { t } = useLanguage();
@@ -22,11 +23,20 @@ const Feedback: React.FC = () => {
     setLoading(true);
 
     try {
-      await addDoc(collection(db, "feedback"), {
+      // Dual write to Firebase and Supabase
+      const fbPromise = addDoc(collection(db, "feedback"), {
         ...formData,
         timestamp: serverTimestamp(),
         date: new Date().toISOString().split('T')[0]
       });
+
+      const sbPromise = supabaseService.addFeedback({
+        ...formData,
+        rating: 5, // Default rating as not in form yet
+        created_at: new Date().toISOString()
+      });
+
+      await Promise.all([fbPromise, sbPromise]);
 
       logEvent('feedback_submitted', {
         type: formData.type
@@ -54,7 +64,7 @@ const Feedback: React.FC = () => {
               {t('feedback.subtitle')}
             </p>
           </div>
-          
+
           <div className="md:w-2/3 p-10">
             {submitted ? (
               <div className="h-full flex flex-col items-center justify-center text-center animate-in fade-in zoom-in duration-500">
@@ -62,7 +72,7 @@ const Feedback: React.FC = () => {
                   <CheckCircle2 className="w-16 h-16 text-success" />
                 </div>
                 <h2 className="text-2xl font-bold text-secondary mb-2">{t('feedback.success')}</h2>
-                <button 
+                <button
                   onClick={() => setSubmitted(false)}
                   className="mt-6 text-primary font-bold hover:underline"
                 >
@@ -74,24 +84,24 @@ const Feedback: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-bold text-secondary mb-2">{t('feedback.name')}</label>
-                    <input 
+                    <input
                       required
                       disabled={loading}
-                      type="text" 
+                      type="text"
                       value={formData.name}
-                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       className="w-full p-3 rounded-xl border border-neutral/30 bg-white focus:ring-2 focus:ring-accent outline-none transition-all disabled:opacity-50"
                       placeholder="Enter your name"
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-secondary mb-2">{t('feedback.email')}</label>
-                    <input 
+                    <input
                       required
                       disabled={loading}
-                      type="email" 
+                      type="email"
                       value={formData.email}
-                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       className="w-full p-3 rounded-xl border border-neutral/30 bg-white focus:ring-2 focus:ring-accent outline-none transition-all disabled:opacity-50"
                       placeholder="Enter your email"
                     />
@@ -102,26 +112,26 @@ const Feedback: React.FC = () => {
                   <label className="block text-sm font-bold text-secondary mb-2">{t('feedback.type')}</label>
                   <div className="flex gap-4">
                     <label className="flex-1 cursor-pointer">
-                      <input 
+                      <input
                         disabled={loading}
-                        type="radio" 
-                        name="type" 
-                        className="sr-only peer" 
+                        type="radio"
+                        name="type"
+                        className="sr-only peer"
                         checked={formData.type === 'Suggestion'}
-                        onChange={() => setFormData({...formData, type: 'Suggestion'})}
+                        onChange={() => setFormData({ ...formData, type: 'Suggestion' })}
                       />
                       <div className="p-3 text-center rounded-xl border border-neutral/30 peer-checked:bg-accent/20 peer-checked:border-accent peer-checked:text-accent font-bold transition-all">
                         {t('feedback.type_suggestion')}
                       </div>
                     </label>
                     <label className="flex-1 cursor-pointer">
-                      <input 
+                      <input
                         disabled={loading}
-                        type="radio" 
-                        name="type" 
-                        className="sr-only peer" 
+                        type="radio"
+                        name="type"
+                        className="sr-only peer"
                         checked={formData.type === 'Issue'}
-                        onChange={() => setFormData({...formData, type: 'Issue'})}
+                        onChange={() => setFormData({ ...formData, type: 'Issue' })}
                       />
                       <div className="p-3 text-center rounded-xl border border-neutral/30 peer-checked:bg-error/20 peer-checked:border-error peer-checked:text-error font-bold transition-all">
                         {t('feedback.type_issue')}
@@ -132,20 +142,20 @@ const Feedback: React.FC = () => {
 
                 <div>
                   <label className="block text-sm font-bold text-secondary mb-2">{t('feedback.message')}</label>
-                  <textarea 
+                  <textarea
                     required
                     disabled={loading}
                     rows={5}
                     value={formData.message}
-                    onChange={(e) => setFormData({...formData, message: e.target.value})}
+                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     className="w-full p-3 rounded-xl border border-neutral/30 bg-white focus:ring-2 focus:ring-accent outline-none transition-all resize-none disabled:opacity-50"
                     placeholder="Tell us what's on your mind..."
                   ></textarea>
                 </div>
 
-                <button 
+                <button
                   disabled={loading}
-                  type="submit" 
+                  type="submit"
                   className="w-full bg-primary text-white font-bold py-4 rounded-xl hover:bg-secondary transition-all shadow-lg flex items-center justify-center gap-2 group disabled:bg-neutral/50"
                 >
                   {loading ? (

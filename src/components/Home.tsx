@@ -15,12 +15,15 @@ import { DARSHAN_TIMINGS, NEWS_ITEMS } from '../constants/constants';
 import { calculatePanchangam } from '../utils/panchangam';
 import { useLanguage } from '../context/LanguageContext';
 import { useNotifications } from '../context/NotificationContext';
+import { supabaseService } from '../services/supabaseService';
 import Logo from './Logo';
 
 const Home: React.FC = () => {
   const [panchangam, setPanchangam] = useState<any>(null);
   const [greeting, setGreeting] = useState('');
   const [isOpen, setIsOpen] = useState(true);
+  const [dynamicNews, setDynamicNews] = useState<any[]>([]);
+  const [siteStatus, setSiteStatus] = useState<any>(null);
   const { language, t } = useLanguage();
   const { permission, requestPermission } = useNotifications();
   const { scrollY } = useScroll();
@@ -36,9 +39,26 @@ const Home: React.FC = () => {
     { name: t('stats.sun'), value: 3490 },
   ], [t]);
 
-  const loadData = () => {
-    const storedNews = localStorage.getItem('temple_news');
-    setDynamicNews(storedNews ? JSON.parse(storedNews) : NEWS_ITEMS(language));
+  const loadData = async () => {
+    try {
+      const [sbNews, sbStatus] = await Promise.all([
+        supabaseService.getNews(),
+        supabaseService.getSiteStatus()
+      ]);
+
+      if (sbNews && sbNews.length > 0) {
+        setDynamicNews(sbNews);
+      } else {
+        const storedNews = localStorage.getItem('temple_news');
+        setDynamicNews(storedNews ? JSON.parse(storedNews) : NEWS_ITEMS(language));
+      }
+
+      if (sbStatus) {
+        setSiteStatus(sbStatus);
+      }
+    } catch (err) {
+      console.error("Home supabased news/status load failed", err);
+    }
   };
 
   const rays = useMemo(() => Array.from({ length: 15 }, (_, i) => ({
@@ -95,6 +115,13 @@ const Home: React.FC = () => {
 
   return (
     <div className="flex flex-col w-full relative">
+      {siteStatus?.scrollNews && (
+        <div className="bg-primary text-white py-2 overflow-hidden whitespace-nowrap relative z-50 border-b border-accent/20">
+          <div className="inline-block animate-marquee px-4 font-bold text-sm tracking-wide">
+            <span className="text-accent mr-2">✦</span> {siteStatus.scrollNews} <span className="text-accent mx-10">✦</span> {siteStatus.scrollNews} <span className="text-accent mx-10">✦</span> {siteStatus.scrollNews}
+          </div>
+        </div>
+      )}
       <div id="hero-container" className="relative h-[900px] w-full overflow-hidden group">
         <div id="particle-container"></div>
         <div className="god-rays">
@@ -130,7 +157,7 @@ const Home: React.FC = () => {
               <div className="flex flex-wrap items-center gap-4 mt-8 justify-center md:justify-start">
                 <span className={`px-5 py-2 rounded-full text-sm font-bold border flex items-center gap-2 backdrop-blur-md ${isOpen ? 'bg-success/20 border-success/50 text-success' : 'bg-error/20 border-error/50 text-error'}`}>
                   <div className={`w-3 h-3 rounded-full ${isOpen ? 'bg-success animate-pulse shadow-[0_0_10px_#4ade80]' : 'bg-error'}`}></div>
-                  {isOpen ? t('status.open') : t('status.closed')}
+                  {siteStatus?.templeStatus || (isOpen ? t('status.open') : t('status.closed'))}
                 </span>
                 <span className="bg-gradient-to-r from-primary/50 to-accent/50 text-white px-5 py-2 rounded-full text-sm font-bold border border-accent/30 shadow-[0_0_20px_rgba(234,179,8,0.3)] flex items-center gap-2 backdrop-blur-md">
                   <Sparkles className="w-4 h-4" /> {t('hero.badge')}

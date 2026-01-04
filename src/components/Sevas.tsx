@@ -4,14 +4,27 @@ import { Flower, Clock, CalendarCheck, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { SEVAS } from '../constants/constants';
 import { useLanguage } from '../context/LanguageContext';
+import { supabaseService } from '../services/supabaseService';
 
 const Sevas: React.FC = () => {
   const { language, t } = useLanguage();
-  const [dynamicSevas, setDynamicSevas] = useState<any[]>([]);
+  const [dynamicSevas, setDynamicSevas] = useState<any[]>(SEVAS(language));
+  const [loading, setLoading] = useState(true);
 
-  const loadData = () => {
-    const stored = localStorage.getItem('temple_sevas');
-    setDynamicSevas(stored ? JSON.parse(stored) : SEVAS(language));
+  const loadData = async () => {
+    try {
+      const sbSevas = await supabaseService.getSevas();
+      if (sbSevas && sbSevas.length > 0) {
+        setDynamicSevas(sbSevas);
+      } else {
+        const stored = localStorage.getItem('temple_sevas');
+        setDynamicSevas(stored ? JSON.parse(stored) : SEVAS(language));
+      }
+    } catch (err) {
+      console.error("Sevas supabased load failed", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
