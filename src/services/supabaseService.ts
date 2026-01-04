@@ -64,6 +64,19 @@ export const supabaseService = {
         return data;
     },
 
+    // Profile Operations
+    async getProfile(userId: string) {
+        const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
+        if (error && error.code !== 'PGRST116') throw error;
+        return data;
+    },
+
+    async updateProfile(userId: string, updates: any) {
+        const { data, error } = await supabase.from('profiles').update(updates).eq('id', userId).select();
+        if (error) throw error;
+        return data;
+    },
+
     async getAudioTracks(language: string) {
         const { data, error } = await supabase.from('audio').select('*').eq('language', language).order('title');
         if (error) throw error;
@@ -86,5 +99,11 @@ export const supabaseService = {
 
         const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(data.path);
         return publicUrl;
+    },
+
+    async uploadProfilePicture(userId: string, file: File) {
+        const fileExt = file.name.split('.').pop();
+        const path = `${userId}/avatar_${Math.random()}.${fileExt}`;
+        return this.uploadMedia('devotee-profiles', file, path);
     }
 };

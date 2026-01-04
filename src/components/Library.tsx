@@ -10,8 +10,10 @@ import { supabaseService } from '../services/supabaseService';
 const Library: React.FC = () => {
   const { language, t } = useLanguage();
   const [dynamicBooks, setDynamicBooks] = React.useState<any[]>(BOOKS(language));
+  const [loading, setLoading] = React.useState(true);
 
   const loadData = async () => {
+    setLoading(true);
     try {
       const sbBooks = await supabaseService.getBooks();
       if (sbBooks && sbBooks.length > 0) {
@@ -19,6 +21,8 @@ const Library: React.FC = () => {
       }
     } catch (err) {
       console.error("Library books load failed", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -52,7 +56,16 @@ const Library: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
-        {dynamicBooks.map((book, index) => (
+        {loading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="bg-white p-6 rounded-[2.5rem] shadow-xl border border-neutral/10 flex flex-col items-center">
+              <div className="w-40 h-56 bg-neutral/10 animate-pulse rounded-2xl mb-6"></div>
+              <div className="h-6 w-3/4 bg-neutral/10 animate-pulse rounded-lg mb-2"></div>
+              <div className="h-4 w-1/2 bg-neutral/10 animate-pulse rounded-full mb-6"></div>
+              <div className="h-12 w-full bg-neutral/10 animate-pulse rounded-2xl"></div>
+            </div>
+          ))
+        ) : dynamicBooks.map((book, index) => (
           <motion.div
             key={book.id}
             initial={{ opacity: 0, y: 30 }}

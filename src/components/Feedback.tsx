@@ -6,6 +6,7 @@ import { FeedbackItem } from '../types/types';
 import { db, logEvent } from '../firebase/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { supabaseService } from '../services/supabaseService';
+import { sanitizeInput } from '../utils/security';
 
 const Feedback: React.FC = () => {
   const { t } = useLanguage();
@@ -23,15 +24,21 @@ const Feedback: React.FC = () => {
     setLoading(true);
 
     try {
+      const sanitizedData = {
+        ...formData,
+        name: sanitizeInput(formData.name),
+        message: sanitizeInput(formData.message)
+      };
+
       // Dual write to Firebase and Supabase
       const fbPromise = addDoc(collection(db, "feedback"), {
-        ...formData,
+        ...sanitizedData,
         timestamp: serverTimestamp(),
         date: new Date().toISOString().split('T')[0]
       });
 
       const sbPromise = supabaseService.addFeedback({
-        ...formData,
+        ...sanitizedData,
         rating: 5, // Default rating as not in form yet
         created_at: new Date().toISOString()
       });

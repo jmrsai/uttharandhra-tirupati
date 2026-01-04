@@ -10,6 +10,7 @@ import { supabaseService } from '../services/supabaseService';
 const Audio: React.FC = () => {
   const { language, t } = useLanguage();
   const [tracks, setTracks] = useState<AudioItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [currentTrack, setCurrentTrack] = useState<AudioItem | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -19,23 +20,24 @@ const Audio: React.FC = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const loadTracks = async () => {
+    setLoading(true);
     try {
       // Try Supabase first
       const sbTracks = await supabaseService.getAudioTracks(language);
       if (sbTracks && sbTracks.length > 0) {
         setTracks(sbTracks);
-        return;
+      } else {
+        // Fallback to RTDB
+        const tracksRef = ref(rtdb, `audio_tracks/${language}`);
+        onValue(tracksRef, (snapshot) => {
+          const data = snapshot.val();
+          setTracks(data ? Object.values(data) : []);
+        }, { onlyOnce: true });
       }
-
-      // Fallback to RTDB
-      const tracksRef = ref(rtdb, `audio_tracks/${language}`);
-      onValue(tracksRef, (snapshot) => {
-        const data = snapshot.val();
-        setTracks(data ? Object.values(data) : []);
-      }, { onlyOnce: true });
-
     } catch (err) {
       console.error("Audio tracks load failed", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -112,7 +114,17 @@ const Audio: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 gap-4">
-        {tracks.map((track) => (
+        {loading ? (
+          Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="flex items-center p-5 rounded-2xl bg-base-100 border border-neutral/10">
+              <div className="w-14 h-14 bg-neutral/10 animate-pulse rounded-2xl"></div>
+              <div className="ml-5 flex-grow space-y-2">
+                <div className="h-3 w-20 bg-neutral/10 animate-pulse rounded-full"></div>
+                <div className="h-5 w-48 bg-neutral/10 animate-pulse rounded-lg"></div>
+              </div>
+            </div>
+          ))
+        ) : tracks.map((track) => (
           <div
             key={track.id}
             onClick={() => handleTrackSelect(track)}

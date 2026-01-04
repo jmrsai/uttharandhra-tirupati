@@ -1,16 +1,20 @@
-
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Uttharandhra Tirupati - Pendurthi</title>
-    <meta name="description" content="Official website of Uttharandhra Tirupati Temple, Pendurthi. Explore sevas, gallery, divine videos and contribute via E-Hundi." />
-    <meta name="theme-color" content="#f97316" />
-    <link rel="manifest" href="/manifest.json" />
-    <link rel="apple-touch-icon" href="/logo192.png" />
-    <link href="https://fonts.googleapis.com/css2?family=Ramabhadra&family=Tiro+Telugu:ital@0;1&display=swap" rel="stylesheet">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Uttharandhra Tirupati - Pendurthi</title>
+  <meta name="description"
+    content="Official website of Uttharandhra Tirupati Temple, Pendurthi. Explore sevas, gallery, divine videos and contribute via E-Hundi." />
+  <meta name="theme-color" content="#f97316" />
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://esm.sh https://www.gstatic.com https://*.firebaseio.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://*.supabase.co https://yt3.googleusercontent.com https://i.ytimg.com https://*.googleusercontent.com; connect-src 'self' https://*.supabase.co https://*.firebaseio.com https://*.googleapis.com wss://*.firebaseio.com;">
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="apple-touch-icon" href="/logo192.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Ramabhadra&family=Tiro+Telugu:ital@0;1&display=swap"
+    rel="stylesheet">
   <script type="importmap">
 {
   "imports": {
@@ -28,20 +32,21 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/src/index.css">
+  <link rel="stylesheet" href="/src/index.css">
 </head>
-  <body>
-    <div id="scroll-progress"></div>
-    <div id="root"></div>
-    <script type="module" src="./src/index.tsx"></script>
-    <script>
-      window.addEventListener('scroll', () => {
-        const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-        const scrolled = (winScroll / height) * 100;
-        document.getElementById('scroll-progress').style.width = scrolled + '%';
-      });
-    </script>
-  <script type="module" src="/src/index.tsx"></script>
+
+<body>
+  <div id="scroll-progress"></div>
+  <div id="root"></div>
+  <script type="module" src="./src/index.tsx"></script>
+  <script>
+    window.addEventListener('scroll', () => {
+      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      document.getElementById('scroll-progress').style.width = scrolled + '%';
+    });
+  </script>
 </body>
+
 </html>

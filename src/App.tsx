@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { LanguageProvider } from './context/LanguageContext';
@@ -17,6 +16,7 @@ import MusicPlayer from './components/MusicPlayer';
 import Admin from './components/Admin';
 import Feedback from './components/Feedback';
 import Login from './components/Login';
+import Profile from './components/Profile';
 import Live from './components/Live';
 import Todos from './components/Todos';
 import { logEvent } from './firebase/firebase';
@@ -63,6 +63,7 @@ export const App: React.FC = () => {
                 <Route path="admin" element={<Admin />} />
                 <Route path="feedback" element={<Feedback />} />
                 <Route path="login" element={<Login />} />
+                <Route path="profile" element={<Profile />} />
                 <Route path="todos" element={<Todos />} />
               </Route>
             </Routes>
