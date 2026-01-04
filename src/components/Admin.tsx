@@ -195,23 +195,28 @@ const Admin: React.FC = () => {
     setNotifForm({ title: '', message: '', category: 'General' });
   };
 
-  if (!user) {
+  if (!user || user.role !== 'admin') {
     return (
       <div className="min-h-[70vh] flex items-center justify-center bg-stone-50 px-4">
-        <div className="bg-white p-10 rounded-[2.5rem] shadow-2xl border border-saffron-100 w-full max-w-md relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-saffron-500 to-gold-500"></div>
+        <div className="bg-white p-10 rounded-[3rem] shadow-2xl border border-saffron-100 w-full max-w-md relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-saffron-500 to-saffron-800"></div>
           <div className="text-center mb-8">
-            <div className="bg-saffron-100 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-4 transform rotate-12">
-              <Lock className="text-saffron-600 w-10 h-10 -rotate-12" />
+            <div className="bg-saffron-50 w-24 h-24 rounded-3xl flex items-center justify-center mx-auto mb-6 transform rotate-6 hover:rotate-0 transition-transform duration-500">
+              <Lock className="text-saffron-600 w-12 h-12" />
             </div>
-            <h1 className="text-3xl font-bold text-stone-800 font-header">Admin Access</h1>
-            <p className="text-stone-500 text-sm mt-2">Please log in to manage the temple portal.</p>
+            <h1 className="text-3xl font-bold text-stone-900 font-header mb-3">Restricted Access</h1>
+            <p className="text-stone-500 text-sm leading-relaxed px-4">
+              {user
+                ? "Your account is logged in as a devotee. Only verified administrators can access this portal."
+                : "Please log in with an authorized account to manage the temple services."}
+            </p>
           </div>
           <button
-            onClick={() => window.location.hash = '/login'}
-            className="w-full bg-gradient-to-r from-saffron-600 to-saffron-800 text-white font-bold py-4 rounded-2xl hover:shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2"
+            onClick={() => window.location.hash = user ? '/profile' : '/login'}
+            className="w-full bg-gradient-to-r from-saffron-600 to-saffron-800 text-white font-bold py-4 rounded-2xl hover:shadow-xl hover:scale-[1.02] transition-all active:scale-95 flex items-center justify-center gap-2"
           >
-            <LogIn className="w-5 h-5" /> Go to Login Page
+            <LogIn className="w-5 h-5" />
+            {user ? 'View My Profile' : 'Go to Login'}
           </button>
         </div>
       </div>

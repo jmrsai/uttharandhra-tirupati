@@ -8,6 +8,7 @@ interface UnifiedUser {
     id: string;
     email?: string;
     name?: string;
+    role?: 'admin' | 'devotee';
     provider: 'firebase' | 'supabase';
     rawUser: FirebaseUser | SupabaseUser;
 }
@@ -43,12 +44,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
 
         // Supabase Auth Listener
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
             if (session?.user) {
+                // Fetch profile to get role
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', session.user.id)
+                    .single();
+
                 setUser({
                     id: session.user.id,
                     email: session.user.email,
                     name: session.user.user_metadata?.full_name,
+                    role: profile?.role || 'devotee',
                     provider: 'supabase',
                     rawUser: session.user,
                 });
