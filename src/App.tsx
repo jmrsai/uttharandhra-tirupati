@@ -18,13 +18,13 @@ import Feedback from './components/Feedback';
 import Login from './components/Login';
 import Profile from './components/Profile';
 import Live from './components/Live';
-import Todos from './components/Todos';
 import { logEvent } from './firebase/firebase';
 import { useChatbot } from './features/Chatbot/useChatbot';
 import Chatbot from './features/Chatbot/Chatbot';
 import ChatbotIcon from './features/Chatbot/ChatbotIcon';
 import './features/Chatbot/Chatbot.css';
 import './i18n'; // Import the i18n configuration
+import { Analytics } from '@vercel/analytics/react';
 
 const AnalyticsTracker: React.FC = () => {
   const location = useLocation();
@@ -69,6 +69,7 @@ export const App: React.FC = () => {
             <ChatbotIcon onClick={toggleChatbot} />
             <Chatbot isOpen={isOpen} onClose={toggleChatbot} />
           </HashRouter>
+          <Analytics />
         </NotificationProvider>
       </LanguageProvider>
     </AuthProvider>

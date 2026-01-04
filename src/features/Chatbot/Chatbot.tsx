@@ -10,7 +10,7 @@ interface ChatbotProps {
 }
 
 const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onClose }) => {
-  const { messages, handleSendMessage } = useChatbot();
+  const { messages, handleSendMessage, input, handleInputChange, handleSubmit } = useChatbot();
 
   if (!isOpen) {
     return null;
@@ -24,10 +24,16 @@ const Chatbot: React.FC<ChatbotProps> = ({ isOpen, onClose }) => {
       </div>
       <div className="chatbot-messages">
         {messages.map((msg, index) => (
-          <Message key={index} text={msg.text} sender={msg.sender} />
+          <Message key={index} text={msg.content} sender={msg.role === 'user' ? 'user' : 'bot'} />
         ))}
       </div>
-      <ChatbotInput onSendMessage={handleSendMessage} />
+      <form onSubmit={handleSubmit}>
+        <ChatbotInput
+          onSendMessage={handleSendMessage}
+          value={input}
+          onChange={handleInputChange}
+        />
+      </form>
     </div>
   );
 };

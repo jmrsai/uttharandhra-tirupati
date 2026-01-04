@@ -1,18 +1,18 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Send } from 'lucide-react';
 
 interface ChatbotInputProps {
-  onSend: (message: string) => void;
+  onSendMessage: (message: string) => void;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const ChatbotInput: React.FC<ChatbotInputProps> = ({ onSend }) => {
-  const [inputValue, setInputValue] = useState('');
+const ChatbotInput: React.FC<ChatbotInputProps> = ({ onSendMessage, value, onChange }) => {
 
   const handleSend = () => {
-    if (inputValue.trim()) {
-      onSend(inputValue.trim());
-      setInputValue('');
+    if (value.trim()) {
+      onSendMessage(value.trim());
     }
   };
 
@@ -27,8 +27,8 @@ const ChatbotInput: React.FC<ChatbotInputProps> = ({ onSend }) => {
       <div className="flex items-center bg-saffron-50 rounded-full overflow-hidden px-2 border border-saffron-200 focus-within:ring-2 focus-within:ring-saffron-400 transition-shadow duration-200">
         <input
           type="text"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
+          value={value}
+          onChange={onChange}
           onKeyPress={handleKeyPress}
           placeholder="Ask me anything..."
           className="w-full p-3 bg-transparent focus:outline-none text-saffron-900 placeholder-saffron-400"
