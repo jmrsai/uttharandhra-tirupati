@@ -1,8 +1,8 @@
-
 import supabase from '../utils/supabase';
 import { NewsItem, SevaItem, GalleryItem, FeedbackItem, SiteStatus, AudioItem, BookItem } from '../types/types';
 
 export const supabaseService = {
+    supabase, // Exposed for real-time channels
     // Database Operations
     async getNews() {
         const { data, error } = await supabase.from('news').select('*').order('date', { ascending: false });

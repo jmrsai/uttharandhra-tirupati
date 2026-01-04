@@ -100,7 +100,24 @@ const Admin: React.FC = () => {
   };
 
   useEffect(() => {
-    if (user) loadAllData();
+    if (user) {
+      loadAllData();
+
+      // Real-time Feedback & Status listeners
+      const channel = supabaseService.supabase.channel('admin-updates')
+        .on('postgres_changes', { event: 'INSERT', table: 'feedback', schema: 'public' }, (payload) => {
+          setFeedback(prev => [payload.new as FeedbackItem, ...prev]);
+          showNotification('New feedback received!', 'success');
+        })
+        .on('postgres_changes', { event: '*', table: 'site_status', schema: 'public' }, (payload) => {
+          if (payload.new) setSiteStatus(payload.new as SiteStatus);
+        })
+        .subscribe();
+
+      return () => {
+        supabaseService.supabase.removeChannel(channel);
+      };
+    }
   }, [user]);
 
   const handleLogout = () => {

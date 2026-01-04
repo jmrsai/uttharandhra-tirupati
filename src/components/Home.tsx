@@ -75,7 +75,18 @@ const Home: React.FC = () => {
     loadData();
     window.addEventListener('storage_update', loadData);
 
+    // Initial calculation
     setPanchangam(calculatePanchangam(new Date(), language));
+
+    // True Real-time Synchronization via Supabase
+    const channel = supabaseService.supabase.channel('home-realtime')
+      .on('postgres_changes', { event: '*', table: 'site_status', schema: 'public' }, (payload) => {
+        if (payload.new) setSiteStatus(payload.new);
+      })
+      .on('postgres_changes', { event: '*', table: 'news', schema: 'public' }, () => {
+        loadData(); // Reload news list
+      })
+      .subscribe();
 
     const now = new Date();
     const hour = now.getHours();

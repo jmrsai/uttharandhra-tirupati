@@ -64,7 +64,6 @@ export const App: React.FC = () => {
                 <Route path="feedback" element={<Feedback />} />
                 <Route path="login" element={<Login />} />
                 <Route path="profile" element={<Profile />} />
-                <Route path="todos" element={<Todos />} />
               </Route>
             </Routes>
             <ChatbotIcon onClick={toggleChatbot} />
