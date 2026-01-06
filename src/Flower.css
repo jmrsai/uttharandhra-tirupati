@@ -1,0 +1,24 @@
+
+.flower-petal {
+  position: fixed;
+  top: -10vh;
+  background-image: url('https://cdn-icons-png.flaticon.com/512/346/346165.png'); /* Using a simple flower icon */
+  background-size: contain;
+  background-repeat: no-repeat;
+  width: 25px;
+  height: 25px;
+  opacity: 0.8;
+  animation: fall linear infinite;
+  z-index: 1000;
+  pointer-events: none; /* So they don't interfere with clicks */
+}
+
+@keyframes fall {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+  100% {
+    transform: translateY(110vh) rotate(360deg);
+    opacity: 0.2;
+  }
+}
