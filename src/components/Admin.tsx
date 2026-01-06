@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useContext } from 'react';
 import {
   Lock, LayoutDashboard, Newspaper, Flower, Image as ImageIcon,
@@ -332,32 +333,59 @@ const Admin: React.FC = () => {
 
             {/* NEWS & EVENTS MANAGEMENT (FIRESTORE) */}
             {activeTab === 'news' && (
-              <div className="p-10">
-                <div className="flex justify-between items-center mb-10">
-                  <h3 className="text-2xl font-bold text-secondary font-header">Temple News & Festival Events</h3>
-                  <button
-                    onClick={() => setEditingNews({ id: '', title: '', date: new Date().toISOString().split('T')[0], description: '', image: 'https://picsum.photos/800/500' })}
-                    className="bg-primary/10 text-primary px-8 py-4 rounded-2xl font-bold flex items-center gap-2 hover:bg-primary hover:text-white transition-all">
-                    <Plus className="w-5 h-5" /> Create New Post
-                  </button>
-                </div>
-                {/* ... Rest of the news component ... */}
-              </div>
+               <div className="p-10">
+               <div className="flex justify-between items-center mb-10">
+                 <h3 className="text-2xl font-bold text-secondary font-header">Temple News & Festival Events</h3>
+                 <button
+                   onClick={() => setEditingNews({ id: '', title: '', date: new Date().toISOString().split('T')[0], description: '', image: 'https://picsum.photos/800/500' })}
+                   className="bg-primary/10 text-primary px-8 py-4 rounded-2xl font-bold flex items-center gap-2 hover:bg-primary hover:text-white transition-all">
+                   <Plus className="w-5 h-5" /> Create New Post
+                 </button>
+               </div>
+               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                 {news.map(item => (
+                   <div key={item.id} className="bg-base-100 rounded-2xl shadow-md overflow-hidden group">
+                     <img src={item.image} alt={item.title} className="h-48 w-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                     <div className="p-6">
+                       <p className="text-sm text-neutral-content mb-2">{new Date(item.date).toLocaleDateString()}</p>
+                       <h4 className="font-bold text-secondary text-lg mb-4 truncate">{item.title}</h4>
+                       <div className="flex justify-end gap-2">
+                         <button onClick={() => setEditingNews(item)} className="p-3 text-neutral-content hover:bg-neutral/10 rounded-full transition-colors"><Edit3 className="w-5 h-5" /></button>
+                         <button onClick={() => deleteItem('news', item.id)} className="p-3 text-red-500 hover:bg-red-50 rounded-full transition-colors"><Trash2 className="w-5 h-5" /></button>
+                       </div>
+                     </div>
+                   </div>
+                 ))}
+               </div>
+             </div>
             )}
 
             {/* ARJITHA SEVAS (FIRESTORE) */}
             {activeTab === 'sevas' && (
               <div className="p-10">
-                <div className="flex justify-between items-center mb-10">
-                  <h3 className="text-2xl font-bold text-secondary font-header">Arjitha Seva Offerings</h3>
-                  <button
-                    onClick={() => setEditingSeva({ id: '', name: '', time: '09:00 AM', description: '', availability: 'Daily' })}
-                    className="bg-primary/10 text-primary px-8 py-4 rounded-2xl font-bold flex items-center gap-2 hover:bg-primary hover:text-white transition-all">
-                    <Plus className="w-5 h-5" /> Add New Seva
-                  </button>
-                </div>
-                {/* ... Rest of the sevas component ... */}
+              <div className="flex justify-between items-center mb-10">
+                <h3 className="text-2xl font-bold text-secondary font-header">Arjitha Seva Offerings</h3>
+                <button
+                  onClick={() => setEditingSeva({ id: '', name: '', time: '09:00 AM', description: '', availability: 'Daily' })}
+                  className="bg-primary/10 text-primary px-8 py-4 rounded-2xl font-bold flex items-center gap-2 hover:bg-primary hover:text-white transition-all">
+                  <Plus className="w-5 h-5" /> Add New Seva
+                </button>
               </div>
+              <div className="space-y-4">
+                {sevas.map(seva => (
+                  <div key={seva.id} className="bg-base-100 p-4 rounded-lg shadow-sm flex items-center justify-between">
+                    <div>
+                      <p className="font-bold text-secondary">{seva.name}</p>
+                      <p className="text-sm text-neutral-content">{seva.time} - {seva.availability}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => setEditingSeva(seva)} className="p-3 text-neutral-content hover:bg-neutral/10 rounded-full transition-colors"><Edit3 className="w-5 h-5" /></button>
+                      <button onClick={() => deleteItem('sevas', seva.id)} className="p-3 text-red-500 hover:bg-red-50 rounded-full transition-colors"><Trash2 className="w-5 h-5" /></button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
             )}
             {/* FEEDBACK (FIRESTORE) */}
             {activeTab === 'feedback' && (
@@ -368,12 +396,63 @@ const Admin: React.FC = () => {
                     <Sparkles className={`w-6 h-6 text-primary ${loading ? 'animate-spin' : ''}`} />
                   </button>
                 </div>
-                {/* ... Rest of the feedback component ... */}
+                <div className="space-y-4">
+                  {feedback.map(item => (
+                    <div key={item.id} className="bg-base-100 p-4 rounded-lg shadow-sm">
+                      <p className="text-sm text-neutral-content mb-2">{new Date(item.timestamp.seconds * 1000).toLocaleString()}</p>
+                      <p>{item.message}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </>
         )}
       </div>
+      <AnimatePresence>
+        {editingNews && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          >
+            <motion.div initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-8 space-y-4">
+              <h3 className="text-xl font-bold text-secondary">{editingNews.id ? 'Edit' : 'Create'} News Item</h3>
+              <input type="text" placeholder="Title" value={editingNews.title} onChange={e => setEditingNews({ ...editingNews, title: e.target.value })} className="w-full p-3 border rounded-lg" />
+              <input type="date" value={editingNews.date} onChange={e => setEditingNews({ ...editingNews, date: e.target.value })} className="w-full p-3 border rounded-lg" />
+              <textarea placeholder="Description" value={editingNews.description} onChange={e => setEditingNews({ ...editingNews, description: e.target.value })} className="w-full p-3 border rounded-lg h-32"></textarea>
+              <input type="text" placeholder="Image URL" value={editingNews.image} onChange={e => setEditingNews({ ...editingNews, image: e.target.value })} className="w-full p-3 border rounded-lg" />
+              <div className="flex justify-end gap-4">
+                <button onClick={() => setEditingNews(null)} className="px-6 py-2 rounded-lg bg-neutral/10 text-neutral-content">Cancel</button>
+                <button onClick={handleNewsSave} className="px-6 py-2 rounded-lg bg-primary text-white">Save</button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {editingSeva && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+          >
+            <motion.div initial={{ y: -50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }} className="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-8 space-y-4">
+              <h3 className="text-xl font-bold text-secondary">{editingSeva.id ? 'Edit' : 'Create'} Seva</h3>
+              <input type="text" placeholder="Seva Name" value={editingSeva.name} onChange={e => setEditingSeva({ ...editingSeva, name: e.target.value })} className="w-full p-3 border rounded-lg" />
+              <input type="text" placeholder="Time" value={editingSeva.time} onChange={e => setEditingSeva({ ...editingSeva, time: e.target.value })} className="w-full p-3 border rounded-lg" />
+              <textarea placeholder="Description" value={editingSeva.description} onChange={e => setEditingSeva({ ...editingSeva, description: e.target.value })} className="w-full p-3 border rounded-lg h-24"></textarea>
+              <input type="text" placeholder="Availability" value={editingSeva.availability} onChange={e => setEditingSeva({ ...editingSeva, availability: e.target.value })} className="w-full p-3 border rounded-lg" />
+              <div className="flex justify-end gap-4">
+                <button onClick={() => setEditingSeva(null)} className="px-6 py-2 rounded-lg bg-neutral/10 text-neutral-content">Cancel</button>
+                <button onClick={handleSevaSave} className="px-6 py-2 rounded-lg bg-primary text-white">Save</button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

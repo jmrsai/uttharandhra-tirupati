@@ -118,28 +118,36 @@ export const AUDIO_TRACKS = (lang: string): AudioItem[] => [
     title: lang === 'te' ? 'శ్రీ వెంకటేశ్వర సుప్రభాతం' : 'Sri Venkateswara Suprabhatham', 
     duration: '21:30', 
     category: 'Sloka', 
-    src: 'https://www.tirumala.org/OtherSankeertans/01%20SRI%20VENKATESWARA%20SUPRABHATHAM/01%20SUPRABHATHAM.mp3' 
+    src: 'https://www.tirumala.org/OtherSankeertans/01%20SRI%20VENKATESWARA%20SUPRABHATHAM/01%20SUPRABHATHAM.mp3',
+    artist: 'N/A',
+    image: ''
   },
   { 
     id: '2', 
     title: lang === 'te' ? 'గోవింద నామాలు' : 'Govinda Namalu', 
     duration: '10:45', 
     category: 'Song', 
-    src: 'https://www.tirumala.org/OtherSankeertans/00%20GOVINDA%20NAMALU/00%20GOVINDA%20NAMALU.mp3' 
+    src: 'https://www.tirumala.org/OtherSankeertans/00%20GOVINDA%20NAMALU/00%20GOVINDA%20NAMALU.mp3',
+    artist: 'N/A',
+    image: ''
   },
   { 
     id: '3', 
     title: lang === 'te' ? 'ఓం నమో నారాయణాయ' : 'Om Namo Narayanaya', 
     duration: '06:15', 
     category: 'Sloka', 
-    src: 'https://www.tirumala.org/OtherSankeertans/01%20SRI%20VENKATESWARA%20SUPRABHATHAM/05%20OM%20NAMO%20NARAYANAYA.mp3' 
+    src: 'https://www.tirumala.org/OtherSankeertans/01%20SRI%20VENKATESWARA%20SUPRABHATHAM/05%20OM%20NAMO%20NARAYANAYA.mp3',
+    artist: 'N/A',
+    image: ''
   },
   { 
     id: '4', 
     title: lang === 'te' ? 'భజ గోవిందం' : 'Bhaja Govindam', 
     duration: '31:22', 
     category: 'Sloka', 
-    src: 'https://www.tirumala.org/OtherSankeertans/31%20BHAJA%20GOVINDAM/01%20BHAJA%20GOVINDAM.mp3' 
+    src: 'https://www.tirumala.org/OtherSankeertans/31%20BHAJA%20GOVINDAM/01%20BHAJA%20GOVINDAM.mp3',
+    artist: 'N/A',
+    image: ''
   },
 ];
 

@@ -1,5 +1,7 @@
 
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useState, useEffect, useRef, Suspense, useMemo } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { OrbitControls, useGLTF } from '@react-three/drei';
 import {
   Clock, Calendar, ChevronRight, Sun, Moon, Flower, Gift,
   MapPin, Phone, Mail, ScrollText, ExternalLink, Sparkles,
@@ -17,6 +19,38 @@ import { useLanguage } from '../context/LanguageContext';
 import { useNotifications } from '../context/NotificationContext';
 import { supabaseService } from '../services/supabaseService';
 import Logo from './Logo';
+
+// 3D Model component for the deities
+const DeityModel = ({ path }) => {
+  const { scene } = useGLTF(path);
+  useFrame((state) => {
+    scene.rotation.y += 0.005;
+  });
+  return <primitive object={scene} scale={1.5} position={[0, -1.5, 0]} />;
+};
+
+// Main Hero Section with 3D models
+const HeroSection = () => {
+  return (
+    <div className="relative h-[100vh] spiritual-gradient text-white flex flex-col justify-center items-center overflow-hidden">
+      <div className="absolute inset-0 pattern-overlay"></div>
+      <Canvas camera={{ position: [0, 0, 8], fov: 50 }}>
+        <ambientLight intensity={1.5} />
+        <pointLight position={[10, 10, 10]} />
+        <Suspense fallback={null}>
+          <DeityModel path="/venkateswara.glb" />
+          {/* Add Sridevi and Bhudevi models here */}
+        </Suspense>
+        <OrbitControls enableZoom={false} enablePan={false} autoRotate autoRotateSpeed={0.5} />
+      </Canvas>
+      <div className="absolute bottom-10 text-center animate-reveal">
+        <h1 className="text-5xl font-header font-bold tracking-wider">UTTIRANDHRA TIRUPATI</h1>
+        <p className="mt-4 text-xl">Sri Venkateswara Swamy Temple, Pendurthi</p>
+      </div>
+    </div>
+  );
+};
+
 
 const Home: React.FC = () => {
   const [panchangam, setPanchangam] = useState<any>(null);
@@ -61,16 +95,6 @@ const Home: React.FC = () => {
     }
   };
 
-  const rays = useMemo(() => Array.from({ length: 15 }, (_, i) => ({
-    id: i,
-    style: {
-      '--angle-start': `${Math.random() * 360}deg`,
-      '--angle-end': `${Math.random() * 360}deg`,
-      animationDuration: `${Math.random() * 10 + 10}s`,
-      animationDelay: `-${Math.random() * 20}s`,
-    } as React.CSSProperties
-  })), []);
-
   useEffect(() => {
     loadData();
     window.addEventListener('storage_update', loadData);
@@ -98,27 +122,6 @@ const Home: React.FC = () => {
 
     setIsOpen(hour >= 7 && hour < 20);
 
-    const particleContainer = document.getElementById('particle-container');
-    if (particleContainer) {
-      const createParticle = () => {
-        const particle = document.createElement('div');
-        particle.className = 'particle';
-        const size = Math.random() * 5 + 2;
-        particle.style.width = `${size}px`;
-        particle.style.height = `${size}px`;
-        particle.style.left = `${Math.random() * 100}%`;
-        particle.style.animationDuration = `${Math.random() * 10 + 5}s`;
-        particle.style.animationDelay = `-${Math.random() * 15}s`;
-        particle.style.backgroundColor = `rgba(234, 179, 8, ${Math.random() * 0.5 + 0.2})`;
-        particleContainer.appendChild(particle);
-        setTimeout(() => {
-          particle.remove();
-        }, 15000);
-      };
-      const interval = setInterval(createParticle, 200);
-      return () => clearInterval(interval);
-    }
-
     return () => {
       window.removeEventListener('storage_update', loadData);
     };
@@ -126,73 +129,7 @@ const Home: React.FC = () => {
 
   return (
     <div className="flex flex-col w-full relative">
-      {siteStatus?.scrollNews && (
-        <div className="bg-primary text-white py-2 overflow-hidden whitespace-nowrap relative z-50 border-b border-accent/20">
-          <div className="inline-block animate-marquee px-4 font-bold text-sm tracking-wide">
-            <span className="text-accent mr-2">✦</span> {siteStatus.scrollNews} <span className="text-accent mx-10">✦</span> {siteStatus.scrollNews} <span className="text-accent mx-10">✦</span> {siteStatus.scrollNews}
-          </div>
-        </div>
-      )}
-      <div id="hero-container" className="relative h-[900px] w-full overflow-hidden group">
-        <div id="particle-container"></div>
-        <div className="god-rays">
-          {rays.map(ray => <div key={ray.id} className="ray" style={ray.style}></div>)}
-        </div>
-
-        <motion.div
-          className="absolute inset-0 bg-cover bg-center transition-transform duration-[20s] ease-in-out group-hover:scale-105"
-          style={{
-            backgroundImage: 'url("https://yt3.googleusercontent.com/7y8KChJI_huixiWRFJGfK9-t5E3d7LMvZQN7QdJ2VHdTn8MIwFIH9Mohj0mKmaSGzWlns_ujRQ=w1707-fcrop64=1,00005a57ffffa5a8-k-c0xffffffff-no-nd-rj")',
-            y: y1
-          }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-primary/50 to-transparent"></div>
-        </motion.div>
-
-        <div className="absolute bottom-0 left-0 right-0 p-8 md:p-20 text-white z-20 text-center md:text-left">
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-12">
-            <div className="animate-in fade-in slide-in-from-bottom-12 duration-1000 w-full md:w-auto text-center md:text-left">
-              <div className="relative inline-block mb-8 animate-float">
-                <div className="absolute inset-0 bg-accent/50 rounded-full blur-3xl opacity-60 animate-pulse-glow"></div>
-                <Logo className="w-40 h-40 md:w-56 md:h-56 relative z-10 border-4 border-accent/30 shadow-[0_0_80px_rgba(234,179,8,0.6)]" size={224} />
-              </div>
-
-              <h1 className="text-6xl md:text-8xl font-bold mb-4 font-header text-transparent bg-clip-text bg-gradient-to-r from-accent/80 via-white to-accent drop-shadow-[0_5px_15px_rgba(0,0,0,0.5)] leading-tight tracking-tight">
-                {t('hero.title')}
-              </h1>
-
-              <p className="text-xl md:text-2xl max-w-3xl drop-shadow-lg text-neutral-content/90 leading-relaxed font-light">
-                {t('hero.subtitle')}
-              </p>
-
-              <div className="flex flex-wrap items-center gap-4 mt-8 justify-center md:justify-start">
-                <span className={`px-5 py-2 rounded-full text-sm font-bold border flex items-center gap-2 backdrop-blur-md ${isOpen ? 'bg-success/20 border-success/50 text-success' : 'bg-error/20 border-error/50 text-error'}`}>
-                  <div className={`w-3 h-3 rounded-full ${isOpen ? 'bg-success animate-pulse shadow-[0_0_10px_#4ade80]' : 'bg-error'}`}></div>
-                  {siteStatus?.templeStatus || (isOpen ? t('status.open') : t('status.closed'))}
-                </span>
-                <span className="bg-gradient-to-r from-primary/50 to-accent/50 text-white px-5 py-2 rounded-full text-sm font-bold border border-accent/30 shadow-[0_0_20px_rgba(234,179,8,0.3)] flex items-center gap-2 backdrop-blur-md">
-                  <Sparkles className="w-4 h-4" /> {t('hero.badge')}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-5 w-full sm:w-auto mt-8 md:mt-0 animate-in fade-in slide-in-from-right-12 duration-1000 self-center md:self-end">
-              <Link to="/sevas" className="relative group bg-gradient-to-r from-primary to-secondary text-white px-8 py-4 rounded-xl font-bold transition-all shadow-lg hover:shadow-primary/40 flex items-center justify-center gap-3 transform hover:-translate-y-1.5 overflow-hidden text-lg ring-2 ring-primary/50 hover:ring-accent">
-                <div className="absolute -inset-0 bg-white/10 rotate-45 translate-x-[-150%] group-hover:translate-x-[150%] transition-transform duration-1000 shimmer-bg"></div>
-                <Flower className="w-6 h-6 transition-transform group-hover:rotate-180 duration-500" /> {t('hero.book_sevas')}
-              </Link>
-              <Link to="/donation" className="bg-white/10 backdrop-blur-lg border border-white/20 text-white px-8 py-4 rounded-xl font-bold transition-all shadow-lg hover:bg-white/20 flex items-center justify-center gap-3 transform hover:-translate-y-1.5 text-lg ring-2 ring-white/20 hover:ring-white/40">
-                <Gift className="w-6 h-6" /> {t('hero.e_hundi')}
-              </Link>
-            </div>
-          </div>
-        </div>
-
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 text-white/50 flex flex-col items-center gap-2 animate-bounce z-20">
-          <span className="text-[10px] uppercase font-bold tracking-[0.3em]">Scroll</span>
-          <ArrowDown className="w-4 h-4" />
-        </div>
-      </div>
+      <HeroSection />
 
       {permission !== 'granted' && (
         <div className="max-w-7xl mx-auto px-4 -mt-16 relative z-30">

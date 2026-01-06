@@ -1,4 +1,3 @@
-
 import { streamText } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
 
@@ -17,5 +16,5 @@ export async function POST(req: Request) {
     messages,
   });
 
-  return result.toAIStreamResponse();
+  return result.toTextStreamResponse();
 }
